@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.easyerp.domain.entidade.Produto;
 import com.easyerp.domain.entidade.ProdutoVariacao;
+import com.easyerp.model.dto.EstoqueResponse;
 import com.easyerp.model.dto.MarcaResponse;
 import com.easyerp.model.dto.ProdutoResponse;
 import com.easyerp.model.dto.ProdutoVariacaoResponse;
@@ -54,6 +55,7 @@ public class ProdutoRepositoryProjectionCustomImpl  extends ServiceFuncoes imple
                         p.getId(),
                         p.getProdutoNome(),
                         p.getMarca() != null ? new MarcaResponse(p.getMarca().getId(), p.getMarca().getNomeMarca()) : null,
+                        		 p.getEstoque()!=null ? new EstoqueResponse(p.getEstoque().getQuantidade()): null,
                         p.getCusto(),
                         p.getCustoMedio(),
                         p.getPrecoVenda(),
