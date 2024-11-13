@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.easyerp.model.input.ProdutoCadastroInput;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,12 +19,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Digits;
 import lombok.Getter;
 import lombok.Setter;
+
 @Table(name = "tab_produtos")
 @Getter
 @Setter
 @Entity
 public class Produto extends GeradorId {
-
 
 	@Serial
 	private static final long serialVersionUID = 1L;
@@ -34,24 +36,29 @@ public class Produto extends GeradorId {
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name = "marca_id")
 	private Marca marca;
-	//@Column(length = 30, nullable = false)
+	// @Column(length = 30, nullable = false)
 //	@Enumerated(EnumType.STRING)
 //	private TipoProduto tipoProduto;
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name = "subcategoria_id")
 	private SubCategoria subCategoria;
 	@Digits(integer = 9, fraction = 4)
-	private BigDecimal custo=BigDecimal.ZERO;
+	private BigDecimal custo = BigDecimal.ZERO;
 	@Digits(integer = 9, fraction = 4)
-	private BigDecimal custoMedio=BigDecimal.ZERO;
+	private BigDecimal custoMedio = BigDecimal.ZERO;
 	@Digits(integer = 9, fraction = 4)
-	private BigDecimal precoVenda= BigDecimal.ZERO;
+	private BigDecimal precoVenda = BigDecimal.ZERO;
 	@Digits(integer = 9, fraction = 4)
-	private BigDecimal estoqueMinimo= BigDecimal.ZERO;
+	private BigDecimal estoqueMinimo = BigDecimal.ZERO;
 	@Digits(integer = 9, fraction = 4)
-	private BigDecimal estoqueMaximo= BigDecimal.ZERO;
+	private BigDecimal estoqueMaximo = BigDecimal.ZERO;
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProdutoVariacao> variacoes = new HashSet<>();
 
+	public Produto(ProdutoCadastroInput produtoCadastroInput) {
 
+	}
+	public Produto() {
+		
+	}
 }

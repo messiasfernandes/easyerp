@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.easyerp.domain.entidade.Produto;
 import com.easyerp.utils.ServiceFuncoes;
+import com.easyerp.utils.TolowerCase;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -70,7 +71,7 @@ System.out.println(produtoIds);
 
     	  String baseQuery = "SELECT p.id FROM Produto p  LEFT JOIN p.subCategoria s ";
     	  System.out.println("primeira consulta");
-        //  parametro= TolowerCase.normalizarString(parametro);
+        parametro= TolowerCase.normalizarString(parametro);
           String condition = getCondition(parametro, isNumeric, isEAN, isId);
           String idQueryStr = baseQuery + condition;
           //   + " ORDER BY p.produtoNome";
@@ -91,7 +92,7 @@ System.out.println(produtoIds);
           if (parametro != null && !parametro.isEmpty()) {
               if (!isNumeric && qtdecaraceteres(parametro) > 0) {
             	   return " WHERE p.produtoNome LIKE :parametro OR "
-            	  		+ "p.subCategoria.subcategoriaNome LIKE :parametro";
+            	  		+ "p.subCategoria.subcategoriaNome LIKE :parametro OR p.marca.nomeMarca LIKE :parametro " ;
 
               }
               if (isEAN) {

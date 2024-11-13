@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import com.easyerp.domain.entidade.Produto;
 import com.easyerp.domain.query.ProdutoRepositoryCustom;
-import com.easyerp.domain.query.ProdutoRepositoryProjectionCustom;
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long>,   ProdutoRepositoryCustom {
 
