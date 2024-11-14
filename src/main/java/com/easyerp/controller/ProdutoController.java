@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.easyerp.controller.documentacao.ProdutoControllerOpenApi;
 import com.easyerp.domain.service.ProdutoService;
 import com.easyerp.model.dto.ProdutoResponse;
+import com.easyerp.model.input.ProdutoCadastroInput;
 
 @RequestMapping("v1/produtos")
 @RestController
-public class ProdutoController {
+public class ProdutoController implements ProdutoControllerOpenApi {
 	@Autowired
 	private ProdutoService produtoService;
 	@GetMapping
@@ -24,6 +26,21 @@ public class ProdutoController {
             @RequestParam(value = "page", defaultValue = "0") Integer pagina,
             @RequestParam(defaultValue = "10") Integer size, Pageable page) {
 		return  ResponseEntity.status(HttpStatus.OK).body(produtoService.listar(parametro, page));
+	}
+	@Override
+	public ResponseEntity<ProdutoResponse> create(ProdutoCadastroInput produtoCadastroInput) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public ResponseEntity<Void> delete(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public ResponseEntity<ProdutoResponse> detalhar(Long id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
