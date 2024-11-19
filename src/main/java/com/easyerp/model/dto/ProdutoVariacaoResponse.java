@@ -1,18 +1,21 @@
 package com.easyerp.model.dto;
 
+import java.math.BigDecimal;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.easyerp.domain.entidade.ProdutoVariacao;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, String unidade ,String caracterisca,
+public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, String unidade ,BigDecimal qtdeEstoque, BigDecimal qtdeporEmbalagem,  String caracterisca,
 		@JsonIgnore
 	Set<AtributoResponse> caracteristicas ) {
 	public ProdutoVariacaoResponse(ProdutoVariacao produtoVariacao) {
 		this(produtoVariacao.getId(), produtoVariacao.getDescricao(), 
 				produtoVariacao.getCodigoEan13(), 
 				produtoVariacao.getUnidadeMedida().getEmbalageNome(),
+				produtoVariacao.getQtdeEstoque(),
+				produtoVariacao.getQtdeporPacote(),
 				concatenar(produtoVariacao.getAtributos().stream().map(AtributoResponse::new).collect(Collectors.toSet())), 
 				
 				 produtoVariacao.getAtributos().stream().map(AtributoResponse::new).collect(Collectors.toSet())

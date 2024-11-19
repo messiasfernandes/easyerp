@@ -4,8 +4,12 @@ import java.io.Serial;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.easyerp.model.input.MarcaCadastroInput;
 import com.easyerp.model.input.ProdutoCadastroInput;
+import com.easyerp.model.input.SubCategoriaInput;
+import com.easyerp.utils.TolowerCase;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -56,9 +60,36 @@ public class Produto extends GeradorId {
 	private Set<ProdutoVariacao> variacoes = new HashSet<>();
 
 	public Produto(ProdutoCadastroInput produtoCadastroInput) {
-
-	}
-	public Produto() {
+		this.produtoNome = TolowerCase.normalizarString(produtoCadastroInput.produto());
+        this.precoVenda = produtoCadastroInput.precoVenda();
+        this.custo = produtoCadastroInput.custo();
+        this.custoMedio = produtoCadastroInput.custoMedio();
+		this.marca = criarMarca(produtoCadastroInput.marca());	
+		this.subCategoria = criarSubCategoria(produtoCadastroInput.subCategoria());
+		this.variacoes = produtoCadastroInput.variacoes().stream().map(ProdutoVariacao::new)
+				.collect(Collectors.toSet());
 		
+	}
+
+	private SubCategoria criarSubCategoria(SubCategoriaInput subCategoriaInput) {
+		if (subCategoria == null) {
+			return null;
+		}
+		this.subCategoria = new SubCategoria();
+		this.subCategoria.setId(subCategoriaInput.id());
+		return subCategoria;
+	}
+
+	private Marca criarMarca(MarcaCadastroInput marcaInput) {
+		if (marcaInput == null) {
+			return null;
+		}
+		Marca marca = new Marca();
+		marca.setId(marcaInput.id());
+		return marca;
+	}
+
+	public Produto() {
+
 	}
 }

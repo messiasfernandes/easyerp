@@ -7,13 +7,13 @@ import com.easyerp.domain.service.exeption.NegocioException;
 
 import jakarta.validation.Valid;
 
-public record ProdutoCadastroInput(Long id, String produto, String descricao, BigDecimal custo,
+public record ProdutoCadastroInput(Long id, String produto, BigDecimal custo,
         BigDecimal custoMedio,
         BigDecimal precoVenda,
-       
-        SubCategoriaInput subCategoriaInput,
+         MarcaCadastroInput marca,
+        SubCategoriaInput subCategoria,
         
-        Set<@Valid ProdutoVariacaoCadastroInput> variacoes) {
+        Set<@Valid VariacaoCadastroInput> variacoes) {
 	
 	  public void validar() {
 	        if ( variacoes == null || variacoes.isEmpty()) {

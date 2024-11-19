@@ -1,13 +1,22 @@
 package com.easyerp.domain.entidade;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+
+import com.easyerp.domain.service.exeption.NegocioException;
+import com.easyerp.model.input.VariacaoCadastroInput;
+import com.easyerp.utils.CodigoBarraEAN;
+import com.easyerp.utils.GeradordeCodigo;
+import com.easyerp.utils.TolowerCase;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
@@ -30,7 +39,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class ProdutoVariacao extends GeradorId {
+public class ProdutoVariacao implements Serializable{
 
 	@Serial
 	private static final long serialVersionUID = 1L;
@@ -53,7 +62,8 @@ public class ProdutoVariacao extends GeradorId {
 	@Column(length = 200)
 	private String imagemProduto;
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
-	private UnidadeMedida unidadeMedida;
+	private UnidadeMedida unidadeMedida = new UnidadeMedida();
+	private Boolean ativo =true;
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "tab_variacao_atributo", joinColumns = @JoinColumn(name = "variacao_id"))
 	@BatchSize(size = 10)
@@ -62,4 +72,32 @@ public class ProdutoVariacao extends GeradorId {
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "variacao_componente", joinColumns = @JoinColumn(name = "variacao_id"), inverseJoinColumns = @JoinColumn(name = "componente_id"))
 	private Set<Componente> componentes = new HashSet<>();
+	
+	public ProdutoVariacao(VariacaoCadastroInput variacaoCadastroInput) {
+		if ((variacaoCadastroInput.codigoEan13() == null || variacaoCadastroInput.codigoEan13().isBlank())) {
+			this.codigoEan13 = GeradordeCodigo.CriarEAN13();
+		} else {
+			// 2. Caso contrário, use o código fornecido (ou null se não houver):
+			this.codigoEan13 = Optional.ofNullable(variacaoCadastroInput.codigoEan13())
+					.filter(codigo -> !codigo.isBlank()).map(CodigoBarraEAN::new).flatMap(CodigoBarraEAN::validar)
+					.map(CodigoBarraEAN::getCodigoBarra)
+					.orElseThrow(() -> new NegocioException("codigo Ean  digitado e inválido"));
+		}
+		if (!variacaoCadastroInput.componentes().isEmpty()) {
+			this.componentes = variacaoCadastroInput.componentes().stream().map(Componente::new)
+					.collect(Collectors.toSet());
+
+		}
+        if(variacaoCadastroInput.custoAdicional().signum()>0) {
+        	this.custoAdicional= variacaoCadastroInput.custoAdicional();
+        }
+		this.atributos = variacaoCadastroInput.atributos().stream().map(Atributo::new).collect(Collectors.toSet());
+		this.qtdeporPacote = variacaoCadastroInput.qtdeporPacote();
+		this.ativo= variacaoCadastroInput.ativo();
+		this.unidadeMedida.setId(variacaoCadastroInput.unidadeInput().id());
+		this.descricao = TolowerCase.normalizarString(variacaoCadastroInput.descricao());
+	}
+	public ProdutoVariacao() {
+	
+	}
 }

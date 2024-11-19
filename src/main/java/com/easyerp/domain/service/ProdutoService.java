@@ -22,7 +22,12 @@ public class ProdutoService {
 	}
    public ProdutoResponse salvar( ProdutoCadastroInput produtoCadastroInput) {
 	   var produto = produtoMapper.converter(produtoCadastroInput, Produto::new);
-	   return produtoMapper.converter(produtoRepository.save(produto), ProdutoResponse::new );
+	   
+	   if (!produto.getVariacoes().isEmpty()) {
+           produto.getVariacoes().forEach(p -> p.setProduto(produto));
+       }
+       var produtoSalvo= produtoRepository.save(produto);
+	   return produtoMapper.converter(produtoSalvo, ProdutoResponse::new );
 	
 }
 }
