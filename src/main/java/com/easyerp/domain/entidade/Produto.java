@@ -2,6 +2,7 @@ package com.easyerp.domain.entidade;
 
 import java.io.Serial;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,13 +59,16 @@ public class Produto extends GeradorId {
 	private BigDecimal estoqueMaximo = BigDecimal.ZERO;
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProdutoVariacao> variacoes = new HashSet<>();
+	public Produto() {
 
+	}
 	public Produto(ProdutoCadastroInput produtoCadastroInput) {
 		this.produtoNome = TolowerCase.normalizarString(produtoCadastroInput.produto());
         this.precoVenda = produtoCadastroInput.precoVenda();
         this.custo = produtoCadastroInput.custo();
         this.custoMedio = produtoCadastroInput.custoMedio();
 		this.marca = criarMarca(produtoCadastroInput.marca());	
+		this.estoque = criarEstoque();
 		this.subCategoria = criarSubCategoria(produtoCadastroInput.subCategoria());
 		this.variacoes = produtoCadastroInput.variacoes().stream().map(ProdutoVariacao::new)
 				.collect(Collectors.toSet());
@@ -89,7 +93,14 @@ public class Produto extends GeradorId {
 		return marca;
 	}
 
-	public Produto() {
-
+	
+	
+	private Estoque criarEstoque() {
+		Estoque estoque = new Estoque();
+		estoque.setDataAlteracao(LocalDateTime.now());
+		estoque.setDataCadastro(LocalDateTime.now());
+		estoque.setQuantidade(BigDecimal.ZERO);
+		estoque.setProduto(this);
+		return estoque;
 	}
 }

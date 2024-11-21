@@ -41,13 +41,13 @@ public class Componente extends GeradorId {
 		this.custodeProducao = componenteCadastroInput.custodeProducao();
 		this.qtde = componenteCadastroInput.qtde();
 		variacao = new ProdutoVariacao();
-//		variacao.setId(componenteCadastroInput.produtoId());
-//		variacao.setPrecoCusto(componenteCadastroInput.precoCusto());
-//		variacao.setPrecoVenda(componenteCadastroInput.precoVenda());
+		variacao.getProduto().setCusto(componenteCadastroInput.precoCusto());
+	variacao.getProduto().setPrecoVenda(componenteCadastroInput.precoVenda().multiply(componenteCadastroInput.qtde()));
+		variacao.setId(componenteCadastroInput.produtoId());
 		variacao.getComponentes().forEach(c ->  c.setVariacao(variacao));
 
 
-		
+	
 
 		
 

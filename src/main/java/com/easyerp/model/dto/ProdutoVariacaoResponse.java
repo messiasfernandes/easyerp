@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, String unidade ,BigDecimal qtdeEstoque, BigDecimal qtdeporEmbalagem,  String caracterisca,
 		@JsonIgnore
-	Set<AtributoResponse> caracteristicas ) {
+	Set<AtributoResponse> caracteristicas , Set<ComponenteResponse>componentes) {
 	public ProdutoVariacaoResponse(ProdutoVariacao produtoVariacao) {
 		this(produtoVariacao.getId(), produtoVariacao.getDescricao(), 
 				produtoVariacao.getCodigoEan13(), 
@@ -18,7 +18,8 @@ public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, S
 				produtoVariacao.getQtdeporPacote(),
 				concatenar(produtoVariacao.getAtributos().stream().map(AtributoResponse::new).collect(Collectors.toSet())), 
 				
-				 produtoVariacao.getAtributos().stream().map(AtributoResponse::new).collect(Collectors.toSet())
+				 produtoVariacao.getAtributos().stream().map(AtributoResponse::new).collect(Collectors.toSet()),
+				 produtoVariacao.getComponentes().stream().map(ComponenteResponse::new ).collect(Collectors.toSet())
 				
 				);
 	}
