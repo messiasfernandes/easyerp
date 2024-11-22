@@ -92,11 +92,13 @@ public class ProdutoVariacao implements Serializable {
 		if (variacaoCadastroInput.custoAdicional().signum() > 0) {
 			this.custoAdicional = variacaoCadastroInput.custoAdicional();
 		}
+		
 		this.atributos = variacaoCadastroInput.atributos().stream().map(Atributo::new).collect(Collectors.toSet());
 		this.qtdeporPacote = variacaoCadastroInput.qtdeporPacote();
 		this.ativo = variacaoCadastroInput.ativo();
 		this.unidadeMedida.setId(variacaoCadastroInput.unidadeInput().id());
 		this.descricao = TolowerCase.normalizarString(variacaoCadastroInput.descricao());
+		
 	}
 
 	public ProdutoVariacao() {

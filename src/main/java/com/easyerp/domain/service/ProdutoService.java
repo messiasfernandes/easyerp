@@ -3,6 +3,7 @@ package com.easyerp.domain.service;
 import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,10 @@ import org.springframework.stereotype.Service;
 import com.easyerp.config.ModelMapper;
 import com.easyerp.domain.entidade.Componente;
 import com.easyerp.domain.entidade.Produto;
+import com.easyerp.domain.entidade.ProdutoVariacao;
 import com.easyerp.domain.repository.ProdutoRepository;
+import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
+import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
 import com.easyerp.model.dto.ProdutoResponse;
 import com.easyerp.model.input.ProdutoCadastroInput;
 import com.easyerp.model.input.ProdutoEditarInput;
@@ -32,28 +36,23 @@ public class ProdutoService {
 	@Transactional(rollbackOn = { Exception.class })
 	public ProdutoResponse salvar(ProdutoCadastroInput produtoCadastroInput) {
 		var produto = produtoMapper.converter(produtoCadastroInput, Produto::new);
-
+		
 		if (!produto.getVariacoes().isEmpty()) {
 			produto.getVariacoes().forEach(p -> p.setProduto(produto));
 
 		}
 		if (produto.getVariacoes().stream().anyMatch(variacao -> !variacao.getComponentes().isEmpty())) {
-System.out.println("passou aqui ");
-			BigDecimal custoTotalComponentes = produto.getVariacoes().stream()
-					.flatMap(variacao -> variacao.getComponentes().stream()).map(Componente::getCustodeProducao)
-					.reduce(BigDecimal.ZERO, BigDecimal::add);
-
 			BigDecimal precoVendaTotalComponentes = produto.getVariacoes().stream()
 					.flatMap(variacao -> variacao.getComponentes().stream())
 					.map(c -> c.getVariacao().getProduto().getPrecoVenda()).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-			// Calcula o custo e o precoVenda totais... (mesma lógica anterior)
-			BigDecimal custoTotalProduto = produto.getCusto().add(custoTotalComponentes);
-			produto.setCusto(custoTotalProduto);
-			System.out.println("passou aqui " + custoTotalProduto);
-			BigDecimal precoVendaTotalProduto = produto.getPrecoVenda().add(precoVendaTotalComponentes);
-			produto.setPrecoVenda(precoVendaTotalProduto);
-
+			produto.setPrecoVenda(precoVendaTotalComponentes);
+			System.out.println(precoVendaTotalComponentes);
+			BigDecimal precoCustoTotalComponentes = produto.getVariacoes().stream()
+					.flatMap(variacao -> variacao.getComponentes().stream())
+					.map(c -> c.getVariacao().getProduto().getCusto()).reduce(BigDecimal.ZERO, BigDecimal::add);
+			produto.setCusto(precoCustoTotalComponentes);
+			System.out.println(precoCustoTotalComponentes+"custo");
+			
 		}
 
 		var produtoSalvo = produtoRepository.save(produto);
@@ -65,6 +64,18 @@ System.out.println("passou aqui ");
 	public ProdutoResponse atualizar(ProdutoEditarInput produtoEditarInput) {
 		Produto produtoExistente = produtoRepository.getReferenceById(produtoEditarInput.id());
 		return produtoMapper.converter(produtoExistente, ProdutoResponse::new);
+	}
+
+	public void excluir(Long id) {
+		buscarPorId(id);
+		try {
+			produtoRepository.deleteById(id);
+			produtoRepository.flush();
+		} catch (DataIntegrityViolationException e) {
+			throw new EntidadeEmUsoExeption(
+					"Operação não permitida!! Este registro pode estar associado a outra tabela");
+		}
+
 	}
 
 	private void calcularPrecos(Produto produto, VariacaoCadastroInput variacaoCadastroInput) {
@@ -90,5 +101,12 @@ System.out.println("passou aqui ");
 			produto.setPrecoVenda(BigDecimal.ZERO);
 			produto.setCustoMedio(BigDecimal.ZERO);
 		}
+	}
+
+	public ProdutoResponse buscarPorId(Long id) {
+
+		var produto = produtoRepository.findById(id)
+				.orElseThrow(() -> new RegistroNaoEncontrado("Produto não encontrado"));
+		return produtoMapper.converter(produto, ProdutoResponse::new);
 	}
 }

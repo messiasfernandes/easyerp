@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.easyerp.model.input.ComponenteCadastroInput;
+import com.easyerp.model.input.VariacaoCadastroInput;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,11 +30,11 @@ public class Componente extends GeradorId {
 	@Digits(integer = 9, fraction = 3)
 	@Column
 	private BigDecimal qtde;
-	  
+
 	@Digits(integer = 9, fraction = 3)
 	private BigDecimal custodeProducao;
 	@ManyToOne(fetch = FetchType.EAGER)
-    private ProdutoVariacao variacao;
+	private ProdutoVariacao variacao;
 	@ManyToMany(fetch = FetchType.EAGER, mappedBy = "componentes")
 	private Set<ProdutoVariacao> variacoes = new HashSet<>();
 
@@ -41,19 +42,23 @@ public class Componente extends GeradorId {
 		this.custodeProducao = componenteCadastroInput.custodeProducao();
 		this.qtde = componenteCadastroInput.qtde();
 		variacao = new ProdutoVariacao();
-		variacao.getProduto().setCusto(componenteCadastroInput.precoCusto().multiply(componenteCadastroInput.precoCusto()));
-	    variacao.getProduto().setPrecoVenda(componenteCadastroInput.precoVenda().multiply(componenteCadastroInput.qtde().add(componenteCadastroInput.custodeProducao())));
-		variacao.setId(componenteCadastroInput.produtoId());
-		variacao.getComponentes().forEach(c ->  c.setVariacao(variacao));
-
-
-	
-
+		variacao.getProduto()
+				.setCusto(componenteCadastroInput.precoCusto().multiply(componenteCadastroInput.precoCusto()).multiply(componenteCadastroInput.qtde()));
+		var valor=componenteCadastroInput.precoCusto().multiply(componenteCadastroInput.qtde());
 		
-
+		System.out.println(valor+ "custo" + qtde  );
+		variacao.getProduto().setPrecoVenda(componenteCadastroInput.precoVenda()
+				.multiply(componenteCadastroInput.qtde().add(componenteCadastroInput.custodeProducao())));
+		variacao.getProduto().setCusto(valor);
+		variacao.setId(componenteCadastroInput.produtoId());
+		variacao.getComponentes().forEach(c -> c.setVariacao(variacao));
+		//variacao.getComponentes().add(this);
+		
 	}
 
 	public Componente() {
-	
+
 	}
+	
+
 }

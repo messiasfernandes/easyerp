@@ -76,7 +76,7 @@ public class Produto extends GeradorId {
 	}
 
 	private SubCategoria criarSubCategoria(SubCategoriaInput subCategoriaInput) {
-		if (subCategoria == null) {
+		if (subCategoriaInput == null) {
 			return null;
 		}
 		this.subCategoria = new SubCategoria();
