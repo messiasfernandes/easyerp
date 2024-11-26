@@ -41,19 +41,6 @@ public class ProdutoService {
 			produto.getVariacoes().forEach(p -> p.setProduto(produto));
 
 		}
-		if (produto.getVariacoes().stream().anyMatch(variacao -> !variacao.getComponentes().isEmpty())) {
-			BigDecimal precoVendaTotalComponentes = produto.getVariacoes().stream()
-					.flatMap(variacao -> variacao.getComponentes().stream())
-					.map(c -> c.getVariacao().getProduto().getPrecoVenda()).reduce(BigDecimal.ZERO, BigDecimal::add);
-			produto.setPrecoVenda(precoVendaTotalComponentes);
-			System.out.println(precoVendaTotalComponentes);
-			BigDecimal precoCustoTotalComponentes = produto.getVariacoes().stream()
-					.flatMap(variacao -> variacao.getComponentes().stream())
-					.map(c -> c.getVariacao().getProduto().getCusto()).reduce(BigDecimal.ZERO, BigDecimal::add);
-			produto.setCusto(precoCustoTotalComponentes);
-			System.out.println(precoCustoTotalComponentes+"custo");
-			
-		}
 
 		var produtoSalvo = produtoRepository.save(produto);
 		return produtoMapper.converter(produtoSalvo, ProdutoResponse::new);

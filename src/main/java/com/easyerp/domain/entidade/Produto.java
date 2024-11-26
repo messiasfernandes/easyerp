@@ -59,19 +59,41 @@ public class Produto extends GeradorId {
 	private BigDecimal estoqueMaximo = BigDecimal.ZERO;
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<ProdutoVariacao> variacoes = new HashSet<>();
+
 	public Produto() {
 
 	}
+
 	public Produto(ProdutoCadastroInput produtoCadastroInput) {
 		this.produtoNome = TolowerCase.normalizarString(produtoCadastroInput.produto());
-        this.precoVenda = produtoCadastroInput.precoVenda();
-        this.custo = produtoCadastroInput.custo();
-        this.custoMedio = produtoCadastroInput.custoMedio();
-		this.marca = criarMarca(produtoCadastroInput.marca());	
+		this.precoVenda = produtoCadastroInput.precoVenda();
+		this.custo = produtoCadastroInput.custo();
+		this.custoMedio = produtoCadastroInput.custoMedio();
+		this.marca = criarMarca(produtoCadastroInput.marca());
 		this.estoque = criarEstoque();
 		this.subCategoria = criarSubCategoria(produtoCadastroInput.subCategoria());
 		this.variacoes = produtoCadastroInput.variacoes().stream().map(ProdutoVariacao::new)
 				.collect(Collectors.toSet());
+		if (variacoes.stream().anyMatch(v -> !v.getComponentes() .isEmpty())) {
+			if(custo.signum()==0) {
+           calcularPrecoCusto(produtoCadastroInput);
+			}
+			if(precoVenda.signum()==0) {
+           calcularPrecoVenda(produtoCadastroInput);
+			}
+		}
+	}
+
+	private BigDecimal calcularPrecoVenda(ProdutoCadastroInput produtoCadastroInput) {
+		 precoVenda = produtoCadastroInput.variacoes().stream()
+				    .map(v -> 
+				        v.componentes().stream()
+				            .map(c -> c.precoVenda().multiply(c.qtde().add(c.custodeProducao())))
+				            .reduce(BigDecimal.ZERO, BigDecimal::add)
+				    )
+				    .reduce(BigDecimal.ZERO, BigDecimal::add);
+			return precoVenda;
+					
 		
 	}
 
@@ -93,8 +115,6 @@ public class Produto extends GeradorId {
 		return marca;
 	}
 
-	
-	
 	private Estoque criarEstoque() {
 		Estoque estoque = new Estoque();
 		estoque.setDataAlteracao(LocalDateTime.now());
@@ -102,5 +122,19 @@ public class Produto extends GeradorId {
 		estoque.setQuantidade(BigDecimal.ZERO);
 		estoque.setProduto(this);
 		return estoque;
+	}
+	private BigDecimal calcularPrecoCusto (ProdutoCadastroInput produtoCadastroInput) {
+		 custo = produtoCadastroInput.variacoes().stream()
+			    .map(v -> 
+			        v.componentes().stream()
+			            .map(c -> c.precoCusto().multiply(c.qtde().add(c.custodeProducao())))
+			            .reduce(BigDecimal.ZERO, BigDecimal::add)
+			    )
+			    .reduce(BigDecimal.ZERO, BigDecimal::add);
+		return custo;
+				
+			//	variacaoCadastroInput.componentes().stream()
+				//.map(c -> c.custodeProducao().add(c.precoCusto().multiply(c.qtde())))
+				//.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 }

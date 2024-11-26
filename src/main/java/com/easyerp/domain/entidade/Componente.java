@@ -1,6 +1,7 @@
 package com.easyerp.domain.entidade;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,9 @@ import com.easyerp.model.input.VariacaoCadastroInput;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -22,11 +26,13 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-public class Componente extends GeradorId {
+public class Componente implements Serializable {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
-
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 	@Digits(integer = 9, fraction = 3)
 	@Column
 	private BigDecimal qtde;
