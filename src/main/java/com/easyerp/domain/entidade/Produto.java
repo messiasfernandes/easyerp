@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.easyerp.domain.enumerados.TipoProduto;
 import com.easyerp.model.input.MarcaCadastroInput;
 import com.easyerp.model.input.ProdutoCadastroInput;
 import com.easyerp.model.input.SubCategoriaInput;
@@ -15,6 +16,8 @@ import com.easyerp.utils.TolowerCase;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -41,9 +44,10 @@ public class Produto extends GeradorId {
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name = "marca_id")
 	private Marca marca;
-	// @Column(length = 30, nullable = false)
-//	@Enumerated(EnumType.STRING)
-//	private TipoProduto tipoProduto;
+	
+     @Column(length = 30)
+	@Enumerated(EnumType.STRING)
+	private TipoProduto tipoProduto;
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
 	@JoinColumn(name = "subcategoria_id")
 	private SubCategoria subCategoria;

@@ -65,30 +65,7 @@ public class ProdutoService {
 
 	}
 
-	private void calcularPrecos(Produto produto, VariacaoCadastroInput variacaoCadastroInput) {
-		if (!variacaoCadastroInput.componentes().isEmpty()) {
-			// Soma o custo de produção para cada componente
-			BigDecimal custoTotalComponentes = variacaoCadastroInput.componentes().stream()
-					.map(c -> c.custodeProducao().add(c.precoCusto().multiply(c.qtde())))
-					.reduce(BigDecimal.ZERO, BigDecimal::add);
-
-			// Calcular os preços e custos
-			BigDecimal precoVenda = custoTotalComponentes.multiply(BigDecimal.valueOf(1.30)); // Exemplo: 30% de margem
-			BigDecimal precoCusto = custoTotalComponentes; // Igual ao custo total dos componentes
-			BigDecimal custoMedio = precoCusto.divide(BigDecimal.valueOf(variacaoCadastroInput.componentes().size()), 2,
-					BigDecimal.ROUND_HALF_UP);
-
-			// Setar os valores calculados no produto
-			produto.setCusto(precoCusto);
-			produto.setPrecoVenda(precoVenda);
-			produto.setCustoMedio(custoMedio);
-		} else {
-			// Caso não haja componentes, configure valores padrões, se necessário
-			produto.setCusto(null);
-			produto.setPrecoVenda(BigDecimal.ZERO);
-			produto.setCustoMedio(BigDecimal.ZERO);
-		}
-	}
+ 
 
 	public ProdutoResponse buscarPorId(Long id) {
 
