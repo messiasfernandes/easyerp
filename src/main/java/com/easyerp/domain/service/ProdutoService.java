@@ -1,7 +1,5 @@
 package com.easyerp.domain.service;
 
-import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -9,16 +7,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.easyerp.config.ModelMapper;
-import com.easyerp.domain.entidade.Componente;
 import com.easyerp.domain.entidade.Produto;
-import com.easyerp.domain.entidade.ProdutoVariacao;
 import com.easyerp.domain.repository.ProdutoRepository;
 import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
 import com.easyerp.model.dto.ProdutoResponse;
 import com.easyerp.model.input.ProdutoCadastroInput;
 import com.easyerp.model.input.ProdutoEditarInput;
-import com.easyerp.model.input.VariacaoCadastroInput;
 
 import jakarta.transaction.Transactional;
 

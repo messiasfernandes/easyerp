@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.easyerp.model.input.ComponenteCadastroInput;
-import com.easyerp.model.input.VariacaoCadastroInput;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
