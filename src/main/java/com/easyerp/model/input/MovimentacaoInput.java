@@ -1,7 +1,11 @@
 package com.easyerp.model.input;
 
+import java.util.Set;
+
 import com.easyerp.domain.entidade.MovimentacaoEstoque.TipoMovimentacao;
 
-public record MovimentacaoInput(TipoMovimentacao tipoMovimentacao) {
+public record MovimentacaoInput(Long idProduto, TipoMovimentacao tipoMovimentacao , 
+		Set<VariacaoMovimentacaoInput>variacoeMovimentacaoInputs
+) {
 
 }
