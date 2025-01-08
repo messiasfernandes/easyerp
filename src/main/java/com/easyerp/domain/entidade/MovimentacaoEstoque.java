@@ -27,7 +27,7 @@ public class MovimentacaoEstoque {
     private LocalDateTime dataMovimentacao;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 25)
     private TipoMovimentacao tipoMovimentacao;
 
     @Column(columnDefinition = "TEXT")
@@ -37,6 +37,6 @@ public class MovimentacaoEstoque {
     private List<ItemMovimentacao> itens;
 
     public enum TipoMovimentacao {
-    	ENTRADA, SAIDA;
+    	Entrada, Saida;
     }
 }
