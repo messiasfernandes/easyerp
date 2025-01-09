@@ -3,6 +3,8 @@ package com.easyerp.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,14 +13,17 @@ import com.easyerp.domain.service.MovimentacaoEstoqueService;
 import com.easyerp.model.dto.MovimentacaoResponse;
 import com.easyerp.model.input.MovimentacaoInput;
 
-@RequestMapping("/v1/movimentacaoestoque")
+import jakarta.validation.Valid;
+
+@RequestMapping("v1/movimentacaoestoque")
 @RestController
 public class EstoqueMovimentacaoController implements EstoqueMovimentacaoControllerOpenApi {
 	
 	@Autowired
  private MovimentacaoEstoqueService movimentacaoEstoqueService;
+	@PostMapping
 	@Override
-	public ResponseEntity<MovimentacaoResponse> movimentar(MovimentacaoInput estoqueMovimentacaoInput) {
+	public ResponseEntity<MovimentacaoResponse> movimentar( @Valid @RequestBody  MovimentacaoInput estoqueMovimentacaoInput) {
 	
 		return ResponseEntity.status(HttpStatus.CREATED).body(movimentacaoEstoqueService.registrarMovimentacao(estoqueMovimentacaoInput));
 	}

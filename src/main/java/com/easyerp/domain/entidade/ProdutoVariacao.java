@@ -3,6 +3,7 @@ package com.easyerp.domain.entidade;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -12,6 +13,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.easyerp.domain.enumerados.TipoProduto;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.model.input.VariacaoCadastroInput;
 import com.easyerp.utils.CodigoBarraEAN;
@@ -103,6 +105,18 @@ public class ProdutoVariacao implements Serializable {
 
 	public ProdutoVariacao() {
 
+	}
+	
+	public BigDecimal calcularEstoque(BigDecimal qtdeEstoque) {
+		if (produto != null && produto.getTipoProduto().equals(TipoProduto.Kit) && produto.getEstoque() != null) {
+			BigDecimal quantidade = new BigDecimal(produto.getEstoque().getQuantidade().toString());
+			BigDecimal multiploBD = qtdeporPacote;
+			this.qtdeEstoque = quantidade.divide(multiploBD, RoundingMode.FLOOR);
+		} else {
+			this.qtdeEstoque = qtdeEstoque != null ? qtdeEstoque : BigDecimal.ZERO;
+		}
+
+		return this.qtdeEstoque;
 	}
 
 }

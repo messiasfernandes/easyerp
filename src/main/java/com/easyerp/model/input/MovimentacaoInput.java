@@ -5,7 +5,7 @@ import java.util.Set;
 import com.easyerp.domain.entidade.MovimentacaoEstoque.TipoMovimentacao;
 
 public record MovimentacaoInput(Long idProduto, TipoMovimentacao tipoMovimentacao , 
-		Set<VariacaoMovimentacaoInput>variacoeMovimentacaoInputs
+		Set<ItemMovimentacoaInput>items
 ) {
 
 }

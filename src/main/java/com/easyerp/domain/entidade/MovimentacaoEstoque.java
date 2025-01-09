@@ -1,7 +1,9 @@
 package com.easyerp.domain.entidade;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -13,10 +15,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 
 @Entity
-@Data
+@Getter
+@Setter
 
 public class MovimentacaoEstoque {
 	@Id
@@ -34,7 +39,7 @@ public class MovimentacaoEstoque {
     private String observacao;
     
     @OneToMany(mappedBy = "movimentacao", cascade = CascadeType.ALL)
-    private List<ItemMovimentacao> itens;
+    private Set<ItemMovimentacao> itens = new HashSet<>();;
 
     public enum TipoMovimentacao {
     	Entrada, Saida;

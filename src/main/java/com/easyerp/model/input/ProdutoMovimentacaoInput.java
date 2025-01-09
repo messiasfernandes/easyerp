@@ -1,7 +1,7 @@
 package com.easyerp.model.input;
 
-import java.util.List;
+import java.util.Set;
 
-public record ProdutoMovimentacaoInput(Long idProduto, List<VariacaoMovimentacaoInput>variacaoMovimentacaoInputs) {
+public record ProdutoMovimentacaoInput(String produto, Set<VariacaoMovimentacaoInput>variacoes) {
 
 }

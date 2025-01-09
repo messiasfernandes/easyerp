@@ -1,5 +1,14 @@
 package com.easyerp.model.dto;
 
-public record MovimentacaoResponse() {
+import java.time.LocalDateTime;
+
+import com.easyerp.domain.entidade.MovimentacaoEstoque;
+import com.easyerp.domain.entidade.MovimentacaoEstoque.TipoMovimentacao;
+
+public record MovimentacaoResponse(Long id,  LocalDateTime datamovimentacao, TipoMovimentacao tipoMovimentacao) {
+	public MovimentacaoResponse(MovimentacaoEstoque movimentacaoEstoque) {
+		   this(movimentacaoEstoque.getId(), movimentacaoEstoque.getDataMovimentacao(), movimentacaoEstoque.getTipoMovimentacao());
+
+	}
 
 }
