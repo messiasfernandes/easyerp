@@ -44,7 +44,7 @@ public class ValidarProduto {
                  produtoExistente.getVariacoes().stream()
                          .filter(v -> v.getId().equals(variacao.id()))
                          .findFirst()
-                         .ifPresent(v -> v.setQtdeEstoque(variacao.qtdeEstoque()));
+                         .ifPresent(v -> v.setQtdeEstoque(variacao.qtdeEstoque().intValue()));
              });
 
 

@@ -35,6 +35,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Digits;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -60,8 +61,8 @@ public class ProdutoVariacao implements Serializable {
 	private BigDecimal custoAdicional = BigDecimal.ZERO;
 	@Digits(integer = 9, fraction = 4)
 	private BigDecimal qtdeporPacote = BigDecimal.ONE;
-	@Digits(integer = 9, fraction = 4)
-	private BigDecimal qtdeEstoque = BigDecimal.ZERO;
+	@Setter(value = AccessLevel.NONE)
+	private Integer qtdeEstoque = 0;
 	@Column(length = 200)
 	private String imagemProduto;
 	@ManyToOne(fetch = FetchType.EAGER, optional = true)
@@ -75,7 +76,9 @@ public class ProdutoVariacao implements Serializable {
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "variacao_componente", joinColumns = @JoinColumn(name = "variacao_id"), inverseJoinColumns = @JoinColumn(name = "componente_id"))
 	private Set<Componente> componentes = new HashSet<>();
-
+	public void setQtdeEstoque(Integer qtdeEstoque) {
+		this.qtdeEstoque = this.calcularEstoque(qtdeEstoque);
+	}
 	public ProdutoVariacao(VariacaoCadastroInput variacaoCadastroInput) {
 		if ((variacaoCadastroInput.codigoEan13() == null || variacaoCadastroInput.codigoEan13().isBlank())) {
 			this.codigoEan13 = GeradordeCodigo.CriarEAN13();
@@ -107,13 +110,15 @@ public class ProdutoVariacao implements Serializable {
 
 	}
 	
-	public BigDecimal calcularEstoque(BigDecimal qtdeEstoque) {
+	public Integer calcularEstoque(Integer qtdeEstoque) {
 		if (produto != null && produto.getTipoProduto().equals(TipoProduto.Kit) && produto.getEstoque() != null) {
 			BigDecimal quantidade = new BigDecimal(produto.getEstoque().getQuantidade().toString());
 			BigDecimal multiploBD = qtdeporPacote;
-			this.qtdeEstoque = quantidade.divide(multiploBD, RoundingMode.FLOOR);
+			  
+			this.qtdeEstoque =  quantidade.divide(multiploBD, RoundingMode.FLOOR).intValue();
+					
 		} else {
-			this.qtdeEstoque = qtdeEstoque != null ? qtdeEstoque : BigDecimal.ZERO;
+			this.qtdeEstoque = qtdeEstoque != null ? qtdeEstoque : 0;
 		}
 
 		return this.qtdeEstoque;
