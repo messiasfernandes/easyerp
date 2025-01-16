@@ -53,7 +53,7 @@ public class MovimentacaoEstoqueService {
 		movimentacaoEstoque.getItens().forEach(m -> m.setMovimentacao(movimentacaoEstoque));
 
 		for (var ItemM : movimentacaoEstoque.getItens()) {
-			for (var itemIp : movimentacaoInput.items()) {
+			for (var itemIp : movimentacaoInput.itens()) {
 				ItemM.setQuantidade(itemIp.qtde());
 
 			}
@@ -113,7 +113,7 @@ public class MovimentacaoEstoqueService {
 			 System.out.println("passou aqui ");
 			validarQuantidadeTotal(item.getProduto().getEstoque().getQuantidade(), movimento);
 			
-			 movimento.items().forEach(inputItem -> {
+			 movimento.itens().forEach(inputItem -> {
 		            inputItem.produtoMovimetacao().variacoes().forEach(inputVariacao -> {
 		                item.getProduto().getVariacoes().forEach(variacao -> {
 		                    if (variacao.getId().equals(inputVariacao.id())) {
@@ -138,7 +138,7 @@ public class MovimentacaoEstoqueService {
 
 	}
 	 private void validarQuantidadeTotal(BigDecimal quantidadeTotal, MovimentacaoInput  movimentacao) {
-		    BigDecimal somaVariacoes = movimentacao.items().stream()
+		    BigDecimal somaVariacoes = movimentacao.itens().stream()
 		            .flatMap(item -> item.produtoMovimetacao().variacoes().stream())
 		            .map(variacao -> variacao.qtde() != null ? variacao.qtde() : BigDecimal.ZERO) // Qtde já é BigDecimal, então use diretamente
 		            .reduce(BigDecimal.ZERO, BigDecimal::add);
