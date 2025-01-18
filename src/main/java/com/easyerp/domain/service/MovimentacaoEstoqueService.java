@@ -2,6 +2,7 @@ package com.easyerp.domain.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,6 @@ import com.easyerp.domain.entidade.ItemMovimentacao;
 import com.easyerp.domain.entidade.MovimentacaoEstoque;
 import com.easyerp.domain.entidade.MovimentacaoEstoque.TipoMovimentacao;
 import com.easyerp.domain.entidade.Produto;
-import com.easyerp.domain.entidade.ProdutoVariacao;
 import com.easyerp.domain.enumerados.TipoProduto;
 import com.easyerp.domain.repository.MovimentoEstoqueRepository;
 import com.easyerp.domain.repository.ProdutoRepository;
@@ -20,8 +20,6 @@ import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
 import com.easyerp.model.dto.MovimentacaoResponse;
 import com.easyerp.model.input.MovimentacaoInput;
-import com.easyerp.model.input.ProdutoVAlterar;
-import com.easyerp.utils.ValidarProduto;
 
 import jakarta.transaction.Transactional;
 
@@ -36,7 +34,7 @@ public class MovimentacaoEstoqueService {
     private MovimentacaoInput movimento;
 	@Transactional
 	public MovimentacaoResponse registrarMovimentacao(MovimentacaoInput movimentacaoInput) {
-		System.out.println ( "movimentacoa"+movimentacaoInput.idProduto());
+	
 		MovimentacaoEstoque movimentacaoEstoque = new MovimentacaoEstoque();
 		movimentacaoEstoque.setDataMovimentacao(LocalDateTime.now());
       
@@ -44,9 +42,8 @@ public class MovimentacaoEstoqueService {
          this.movimento = movimentacaoInput;
 		Produto produto = new Produto();
 		
-		produto = produtoRepository.findById(movimentacaoInput.idProduto())
-				.orElseThrow(() -> new RegistroNaoEncontrado("Produto não encontrado"));
-            System.out.println(" produto"+produto.getProdutoNome());
+		produto = buscarProduto(movimentacaoInput.idProduto());
+         
 		ItemMovimentacao item = new ItemMovimentacao();
 		item.setProduto(produto);
 		movimentacaoEstoque.getItens().add(item);
@@ -64,6 +61,7 @@ public class MovimentacaoEstoqueService {
 	}
 
 	private void processarSaidaEstoque(ItemMovimentacao item) {
+	 
 		Estoque estoque = item.getProduto().getEstoque();
 		if (estoque == null) {
 
@@ -76,15 +74,52 @@ public class MovimentacaoEstoqueService {
 			estoque.setQuantidade(BigDecimal.ZERO);
 
 		}
+     
 		/// item.setSaldoAnterior(estoque.getQuantidade());
+		if(item.getQuantidade().signum()==0) {
+			  System.out.println("estoque saida");
+			 movimento.itens().forEach(inputItem -> {
+		            inputItem.produtoMovimetacao().variacoes().forEach(inputVariacao -> {
+		                item.getProduto().getVariacoes().forEach(variacao -> {
+		                    if (variacao.getId().equals(inputVariacao.id())) {
+		                     Integer     novaQuantidade = variacao.getQtdeEstoque() - inputVariacao.qtde().intValue();
+		                     System.out.println("nova quantidade"+ novaQuantidade);
+		                        variacao.setQtdeEstoque(novaQuantidade);
+		              
+		                    }
+		                });
+		            });
+		            
+		        });
+			
+			estoque.setQuantidade(novoEstoque(item));
+		}else{
+			System.out.println(item.getQuantidade());
+			estoque.setQuantidade(estoque.getQuantidade().add(item.getQuantidade()));
+		}
 		estoque.setDataAlteracao(LocalDateTime.now());
-		estoque.setQuantidade(estoque.getQuantidade().add(item.getQuantidade()));
+		
 		item.getProduto().setEstoque(estoque);
 		if (item.getProduto().getTipoProduto().equals(TipoProduto.Kit)) {
 			for (var produtoVariacao : item.getProduto().getVariacoes()) {
 				produtoVariacao.setQtdeEstoque(produtoVariacao.calcularEstoque(produtoVariacao.getQtdeEstoque()));
 			}
-		}
+		}else {
+			System.out.println("pasou aqui tabem ");
+//			//validarQuantidadeTotal(item.getProduto().getEstoque().getQuantidade(), movimento);
+			
+			 movimento.itens().forEach(inputItem -> {
+		            inputItem.produtoMovimetacao().variacoes().forEach(inputVariacao -> {
+		                item.getProduto().getVariacoes().forEach(variacao -> {
+		                    if (variacao.getId().equals(inputVariacao.id())) {
+		                        Integer novaQuantidade = variacao.getQtdeEstoque() - inputVariacao.qtde().intValue();
+		                        variacao.setQtdeEstoque(novaQuantidade);
+		                    }
+		                });
+		            });
+		        });
+   }
+		
 		produtoRepository.save(item.getProduto());
 	}
 
@@ -150,4 +185,18 @@ public class MovimentacaoEstoqueService {
 		        System.out.println("Quantidade total estoque: " + quantidadeTotal);
 		        System.out.println("Soma variações no movimento: " + somaVariacoes);
 	 }
+	 private BigDecimal novoEstoque(ItemMovimentacao item) {
+		 BigDecimal total = BigDecimal.ZERO;
+		for(var pVIten: item.getProduto().getVariacoes()){
+			total =total.add(new BigDecimal(pVIten.getQtdeEstoque()));
+			 System.out.println( "Estoque"+pVIten.getQtdeEstoque());
+			 System.out.println( "total"+total);
+		 }
+		 return total;
+	 }
+	 
+	 private Produto buscarProduto(Long produtoId) {
+	        return produtoRepository.findById(produtoId)
+	                .orElseThrow(() -> new RegistroNaoEncontrado("Produto não encontrado para o ID: " + produtoId));
+	    }
 }
