@@ -2,7 +2,6 @@ package com.easyerp.domain.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -199,4 +198,6 @@ public class MovimentacaoEstoqueService {
 	        return produtoRepository.findById(produtoId)
 	                .orElseThrow(() -> new RegistroNaoEncontrado("Produto não encontrado para o ID: " + produtoId));
 	    }
+	 
+	
 }
