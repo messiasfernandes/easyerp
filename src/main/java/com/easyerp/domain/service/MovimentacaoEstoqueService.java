@@ -10,8 +10,8 @@ import com.easyerp.config.ModelMapper;
 import com.easyerp.domain.entidade.Estoque;
 import com.easyerp.domain.entidade.ItemMovimentacao;
 import com.easyerp.domain.entidade.MovimentacaoEstoque;
-import com.easyerp.domain.entidade.MovimentacaoEstoque.TipoMovimentacao;
 import com.easyerp.domain.entidade.Produto;
+import com.easyerp.domain.enumerados.TipoMovimentacao;
 import com.easyerp.domain.enumerados.TipoProduto;
 import com.easyerp.domain.repository.MovimentoEstoqueRepository;
 import com.easyerp.domain.repository.ProdutoRepository;
@@ -187,9 +187,16 @@ public class MovimentacaoEstoqueService {
 	 private BigDecimal novoEstoque(ItemMovimentacao item) {
 		 BigDecimal total = BigDecimal.ZERO;
 		for(var pVIten: item.getProduto().getVariacoes()){
-			total =total.add(new BigDecimal(pVIten.getQtdeEstoque()));
-			 System.out.println( "Estoque"+pVIten.getQtdeEstoque());
-			 System.out.println( "total"+total);
+			if(item.getMovimentacao().equals(TipoMovimentacao.Entrada)) {
+				total =total.add(new BigDecimal(pVIten.getQtdeEstoque()));
+				 System.out.println( "Estoque"+pVIten.getQtdeEstoque());
+				 System.out.println( "total"+total);
+			}else {
+				total =total.subtract(new BigDecimal(pVIten.getQtdeEstoque()));
+				 System.out.println( "Estoque"+pVIten.getQtdeEstoque());
+				 System.out.println( "total"+total);	
+			}
+		
 		 }
 		 return total;
 	 }
