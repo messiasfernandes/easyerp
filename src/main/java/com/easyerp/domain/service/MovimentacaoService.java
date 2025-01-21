@@ -70,7 +70,7 @@ public class MovimentacaoService {
 	    }
 
 	    private void processarSaidaEstoque(ItemMovimentacao item, MovimentacaoInput movimentacaoInput) {
-	        validarQuantidadeTotal(item.getQuantidade(), movimentacaoInput.itens(), item.getProduto().getTipoProduto());
+	      //  validarQuantidadeTotal(item.getQuantidade(), movimentacaoInput.itens(), item.getProduto().getTipoProduto());
 	        atualizarEstoque(item, movimentacaoInput, false);
 	    }
 
@@ -94,17 +94,22 @@ public class MovimentacaoService {
 	        BigDecimal quantidadeMovimentacao = item.getQuantidade();
 
 	        if (produto.getTipoProduto().equals(TipoProduto.Kit)) {
+	        	
+	        //	atualizarEstoqueVariacoes(produto, movimentacaoInput.itens(), isEntrada);
 	            // Lógica para KIT (se necessário)
-	        	produto.getVariacoes().forEach(variacao -> variacao.setQtdeEstoque(variacao.calcularEstoque(variacao.getQtdeEstoque())));
+	      	produto.getVariacoes().forEach(variacao -> variacao.setQtdeEstoque(variacao.calcularEstoque(variacao.getQtdeEstoque())));
 	        } else {
+	        	System.out.println("veio aqui ");
 	        	atualizarEstoqueVariacoes(produto, movimentacaoInput.itens(), isEntrada);
-	        	//atualizarEstoqueVariacoes(produto, movimentacaoInput.itens(),isEntrada);
+	        
 	        }
 	        if(isEntrada) {
 	        	estoque.setQuantidade(estoque.getQuantidade().add(quantidadeMovimentacao));
 	        }else {
 	            if(quantidadeMovimentacao.signum() == 0) {
-	                estoque.setQuantidade(novoEstoque(produto, isEntrada));
+	            	System.out.println("PASOU AQUI ");
+	            ///	atualizarEstoqueVariacoes(produto, movimentacaoInput.itens(), isEntrada);
+	                estoque.setQuantidade(novoEstoque(produto,movimentacaoInput.itens(), isEntrada));
 	            } else {
 	                estoque.setQuantidade(estoque.getQuantidade().subtract(quantidadeMovimentacao));
 	            }
@@ -113,6 +118,7 @@ public class MovimentacaoService {
 
 	        estoque.setDataAlteracao(LocalDateTime.now());
 	        produto.setEstoque(estoque);
+	        System.out.println("estoque");
 	        produtoRepository.save(produto);
 	    }
 	    
@@ -138,10 +144,6 @@ public class MovimentacaoService {
 	        if (tipoProduto.equals(TipoProduto.Kit)) {
 	            return;
 	        }
-//	    	 BigDecimal somaVariacoes = itensMovimentacao.stream()
-//	                 .flatMap(item -> item.variacoes().stream())
-//	                 .map(VariacaoMovimentacaoInput::qtde)
-//	                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 	        BigDecimal somaVariacoes = itensMovimentacao.stream()
 	                .flatMap(item -> item.produtoMovimetacao().variacoes().stream())
 	                .map(VariacaoMovimentacaoInput::qtde)
@@ -153,17 +155,29 @@ public class MovimentacaoService {
 	            }
 	    }
 
-	    private BigDecimal novoEstoque(Produto produto,boolean isEntrada) {
-	   	 BigDecimal total = BigDecimal.ZERO;
+	    private BigDecimal novoEstoque(Produto produto , Set<ItemMovimentacoaInput> itensMovimentacao, boolean isEntrada) {
+	    	System.out.println(produto.getEstoque().getQuantidade());
+	   	 BigDecimal total =produto.getEstoque().getQuantidade();
+	   	 
+	  
 			for(var pVIten: produto.getVariacoes()){
+			
 				if(isEntrada) {
 					total =total.add(new BigDecimal(pVIten.getQtdeEstoque()));
 				}else {
-					total =total.subtract(new BigDecimal(pVIten.getQtdeEstoque()));
+					System.out.println(pVIten.getQtdeEstoque());
+					BigDecimal totalmultiplicado= pVIten.getQtdeporPacote().multiply(new BigDecimal(  pVIten.getQtdeEstoque()));
+					System.out.println(totalmultiplicado+"multiplicado");
+					
+					//total =total.subtract(new BigDecimal(pVIten.getQtdeEstoque()));
+					BigDecimal finaltotal= totalmultiplicado.multiply(new BigDecimal(  pVIten.getQtdeEstoque()));
+					System.out.println(total.subtract( finaltotal)+"total final o final");
 				}
-			
-			 }
-			 return total;
+			}
+			 
+			System.out.println(total+"total final");
+			produto.getEstoque().setQuantidade(total);
+			 return produto.getEstoque().getQuantidade();
 	   }
 	    private Produto buscarProduto(Long produtoId) {
 	        return produtoRepository.findById(produtoId)
