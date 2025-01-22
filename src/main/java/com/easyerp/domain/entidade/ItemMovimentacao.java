@@ -24,8 +24,8 @@ public class ItemMovimentacao {
 	    private MovimentacaoEstoque movimentacao;
 
 	    @ManyToOne
-	    @JoinColumn(name = "produto_id", nullable = false)
-	    private Produto produto;
+	    @JoinColumn(name = "produtovariacao_id", nullable = false)
+	    private ProdutoVariacao produtoVariacao;
 	    @Digits(integer = 9, fraction = 4)
 	    @Column(nullable = false)
 	    private BigDecimal quantidade= BigDecimal.ZERO;
