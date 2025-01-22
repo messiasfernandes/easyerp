@@ -148,7 +148,7 @@ public class MovimentacaoService {
 	                .flatMap(item -> item.produtoMovimetacao().variacoes().stream())
 	                .map(VariacaoMovimentacaoInput::qtde)
 	                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
+                System.out.println(somaVariacoes+" soma variacoes");
 	            // Verificando se a soma das variações é igual à quantidade total
 	            if (somaVariacoes.compareTo(quantidadeTotal) != 0) {
 	                throw new NegocioException("A soma das quantidades das variações deve ser igual a quantidade total da movimentação.");
