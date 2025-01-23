@@ -96,8 +96,7 @@ public class MovimentacaoService {
 		BigDecimal quantidadeMovimentacao = (item.getQuantidade());
 		if (isEntrada) {
 			if (produto.getTipoProduto().equals(TipoProduto.Kit)) {
-				estoque.setQuantidade(estoque.getQuantidade().add(   item.getQuantidade()));
-				System.out.println(estoque.getQuantidade()+"estouqe qkit");
+				
 				for (var produtoVariacao : produto.getVariacoes()) {
 					produtoVariacao.setQtdeEstoque(produtoVariacao.calcularEstoque(estoque.getQuantidade().intValue()));
 				}
