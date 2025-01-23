@@ -42,6 +42,10 @@ public class MovimentacaoService {
 		        movimentacaoEstoque.setDataMovimentacao(LocalDateTime.now());
 		        movimentacaoEstoque.setTipoMovimentacao(movimentacaoInput.tipoMovimentacao());
 	    	Produto produto = buscarProduto(movimentacaoInput.idProduto());
+	    	var valor= produto.getEstoque().getQuantidade().add(movimentacaoInput.qtdeProduto());
+	        produto.getEstoque().setQuantidade(valor);  
+	      
+
 	    	for (var itemIp : movimentacaoInput.itens()) {
 	    	    ProdutoVariacao variacao = produto.getVariacoes()
 	    	        .stream()
@@ -51,17 +55,19 @@ public class MovimentacaoService {
 	    	    
 	    	    ItemMovimentacao item = new ItemMovimentacao();
 	    	    item.setMovimentacao(movimentacaoEstoque);
-	    	    item.setProdutoVariacao(variacao);
+	    	   
 	    	    item.setQuantidade(itemIp.qtde());
-	    	    
+	        	  var nvqute=    item.getQuantidade().intValue();
+	    	    variacao.setQtdeEstoque(nvqute);
+	    	    item.setProdutoVariacao(variacao);
 	    	    movimentacaoEstoque.getItens().add(item);
 	    	    verificarMovimentacao(movimentacaoEstoque, movimentacaoInput);
-
+     
 	    	    System.out.println("Nome do produto: " + item.getProdutoVariacao().getProduto().getProdutoNome());
 	    	    System.out.println("Qtde estoque: " + item.getProdutoVariacao().getQtdeEstoque());
 	    	    System.out.println("Qtde: " + item.getQuantidade());
 	    	}
-	         
+	    	produtoRepository.save(produto);
 	    	   var movimetacaoSalva = movimentoEstoqueRepository.save(movimentacaoEstoque);
 		        return movimentacaoEstoqueMapper.converter(movimetacaoSalva, MovimentacaoResponse::new);
 	    }
@@ -82,7 +88,7 @@ public class MovimentacaoService {
 
 	    private void processarEntradaEstoque(ItemMovimentacao item, MovimentacaoInput movimentacaoInput) {
 	       validarQuantidadeTotal(movimentacaoInput.qtdeProduto(), movimentacaoInput, item.getProdutoVariacao().getProduto().getTipoProduto());
-	       atualizarEstoque(item, movimentacaoInput, true);
+	 ///  atualizarEstoque(item, movimentacaoInput, true);
 	       
 	       
 	    }
@@ -90,27 +96,28 @@ public class MovimentacaoService {
 	   
 	    private void atualizarEstoque(ItemMovimentacao item, MovimentacaoInput movimentacaoInput, boolean isEntrada) {
 	        Produto produto = item.getProdutoVariacao().getProduto();
-	        Estoque estoque = produto.getEstoque();
-
-	        if (estoque == null) {
+       Estoque estoque = produto.getEstoque();
+//
+        if (estoque == null) {
 	            estoque = new Estoque(); // Inicializa o estoque se for nulo
 	            estoque.setQuantidade(BigDecimal.ZERO); // Define quantidade inicial como zero
 	            estoque.setProduto(produto); // Associa o estoque ao produto
-	            produto.setEstoque(estoque);
+            produto.setEstoque(estoque);
 	        }
-
-	        BigDecimal quantidadeMovimentacao = item.getQuantidade(); // Usa a quantidade específica do item
-
-	        if (isEntrada) {
-	            estoque.setQuantidade(estoque.getQuantidade().add(quantidadeMovimentacao));
-	        } else {
-	            if (estoque.getQuantidade().compareTo(quantidadeMovimentacao) < 0) {
-	                throw new NegocioException("Quantidade insuficiente no estoque para a movimentação.");
-	            }
-	            estoque.setQuantidade(estoque.getQuantidade().subtract(quantidadeMovimentacao));
-	        }
-
+//
+//	        BigDecimal quantidadeMovimentacao = item.getQuantidade(); // Usa a quantidade específica do item
+//
+//	        if (isEntrada) {
+//	            estoque.setQuantidade(estoque.getQuantidade().add(quantidadeMovimentacao));
+//	        } else {
+//	            if (estoque.getQuantidade().compareTo(quantidadeMovimentacao) < 0) {
+//	                throw new NegocioException("Quantidade insuficiente no estoque para a movimentação.");
+//	            }
+//	            estoque.setQuantidade(estoque.getQuantidade().subtract(quantidadeMovimentacao));
+//	        }
+             
 	        estoque.setDataAlteracao(LocalDateTime.now());
+	        estoque.setProduto(produto);
 	        produtoRepository.save(produto); // Salva o produto com o estoque atualizado
 	    }
 	    
