@@ -29,5 +29,6 @@ public class ItemMovimentacao {
 	    @Digits(integer = 9, fraction = 4)
 	    @Column(nullable = false)
 	    private BigDecimal quantidade= BigDecimal.ZERO;
-
+	    @Digits(integer = 9, fraction = 4)
+	    private BigDecimal saldoanterior = BigDecimal.ZERO;
 }

@@ -2,8 +2,6 @@ package com.easyerp.domain.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,12 +19,10 @@ import com.easyerp.domain.repository.ProdutoRepository;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
 import com.easyerp.model.dto.MovimentacaoResponse;
-import com.easyerp.model.input.ItemMovimentacoaInput;
 import com.easyerp.model.input.MovimentacaoInput;
-import com.easyerp.model.input.VariacaoCadastroInput;
-import com.easyerp.model.input.VariacaoMovimentacaoInput;
 
 import jakarta.transaction.Transactional;
+import lombok.experimental.var;
 
 @Service
 public class MovimentacaoService {
@@ -55,64 +51,46 @@ public class MovimentacaoService {
 
 		verificarMovimentacao(movimentacaoEstoque, movimentacaoInput);
 
-		var movimetacaoSalva = movimentoEstoqueRepository.save(movimentacaoEstoque);
+		MovimentacaoEstoque movimetacaoSalva = movimentoEstoqueRepository.save(movimentacaoEstoque);
 		return movimentacaoEstoqueMapper.converter(movimetacaoSalva, MovimentacaoResponse::new);
 	}
 
 	private void verificarMovimentacao(MovimentacaoEstoque movimentacaoEstoque, MovimentacaoInput movimentacaoInput) {
 		if (movimentacaoEstoque.getTipoMovimentacao().equals(TipoMovimentacao.Entrada)) {
 			movimentacaoEstoque.getItens()
-					.forEach(item -> processarEntradaEstoque(item, movimentacaoInput.qtdeProduto()));
+					.forEach(item -> processarEntradaEstoque(item, item.getQuantidade()));
 
 		} else {
 			movimentacaoEstoque.getItens()
-					.forEach(item -> processarSaidaEstoque(item, movimentacaoInput.qtdeProduto()));
+					.forEach(item -> processarSaidaEstoque(item, item.getQuantidade()));
 		}
 	}
 
-//	private void processarSaidaEstoque(ItemMovimentacao item, MovimentacaoInput movimentacaoInput) {
-////	 validarQuantidadeTotal(item.getQuantidade(), movimentacaoInput,
-////		 item.getProdutoVariacao().getProduto().getTipoProduto());
-//		atualizarEstoque(item, false);
-//	}
-//
-//	private void processarEntradaEstoque(ItemMovimentacao item, MovimentacaoInput movimentacaoInput) {
-//		validarQuantidadeTotal(movimentacaoInput.qtdeProduto(), movimentacaoInput,
-//				item.getProdutoVariacao().getProduto().getTipoProduto());
-//		atualizarEstoque(item, true);
-//
-//	}
-	private void atualizarEstoque(ItemMovimentacao item, BigDecimal qtetotal, boolean isEntrada) {
-		Produto produto = item.getProdutoVariacao().getProduto();
-		Estoque estoque = produto.getEstoque();
 
-		if (estoque == null) {
-			estoque = new Estoque();
-			estoque.setQuantidade(BigDecimal.ZERO);
-			estoque.setProduto(produto);
-			produto.setEstoque(estoque);
-		}
+	private void atualizarEstoque(ItemMovimentacao item, BigDecimal qtdeTotal, boolean isEntrada) {
+	    Produto produto = item.getProdutoVariacao().getProduto();
+	    Estoque estoque = produto.getEstoque();
+	    item.setSaldoanterior(estoque.getQuantidade());
 
-		BigDecimal quantidadeMovimentacao = (item.getQuantidade());
-		if (isEntrada) {
-			if (produto.getTipoProduto().equals(TipoProduto.Kit)) {
-				
-				for (var produtoVariacao : produto.getVariacoes()) {
-					produtoVariacao.setQtdeEstoque(produtoVariacao.calcularEstoque(estoque.getQuantidade().intValue()));
-				}
-			} else {
-				estoque.setQuantidade(estoque.getQuantidade().add(quantidadeMovimentacao));
-			}
-		} else {
-			if (estoque.getQuantidade().compareTo(quantidadeMovimentacao) < 0) {
-				throw new NegocioException("Quantidade insuficiente no estoque total.");
-			}
-			estoque.setQuantidade(estoque.getQuantidade().subtract(quantidadeMovimentacao));
-		}
+	    // Garantir que o estoque não seja nulo
+	    if (estoque == null) {
+	        estoque = inicializarEstoque(produto);
+	    }
 
-		estoque.setDataAlteracao(LocalDateTime.now());
-		produtoRepository.save(produto);
+	    if (produto.getTipoProduto().equals(TipoProduto.Kit)) {
+	        if (isEntrada) {
+	            atualizarEstoqueEntradaKit(produto, qtdeTotal);
+	        } else {
+	            atualizarEstoqueSaidaKit(produto, qtdeTotal);
+	        }
+	    } else {
+	        atualizarEstoqueProdutoSimples(estoque, qtdeTotal, isEntrada);
+	    }
+        estoque.setProduto(produto);
+	    estoque.setDataAlteracao(LocalDateTime.now());
+	    produtoRepository.save(produto);
 	}
+
 
 	private ProdutoVariacao buscarVariacao(Produto produto, Long idVariacao) {
 		return produto.getVariacoes().stream().filter(v -> v.getId().equals(idVariacao)).findFirst()
@@ -182,5 +160,68 @@ public class MovimentacaoService {
 			throw new NegocioException("ID do produto não pode ser nulo.");
 		}
 	}
+	
+	private Estoque inicializarEstoque(Produto produto) {
+	    Estoque estoque = new Estoque();
+	    estoque.setQuantidade(BigDecimal.ZERO);
+	    estoque.setProduto(produto);
+	    produto.setEstoque(estoque);
+	    return estoque;
+	}
+	
+	private void atualizarEstoqueProdutoSimples(Estoque estoque, BigDecimal quantidade, boolean isEntrada) {
+		System.out.println("quantidade"+ quantidade);
+	
+	    if (isEntrada) {
+	        estoque.setQuantidade(estoque.getQuantidade().add(quantidade));
+	    } else {
+	        if (estoque.getQuantidade().compareTo(quantidade) < 0) {
+	            throw new NegocioException("Quantidade insuficiente no estoque.");
+	        }
+	        estoque.setQuantidade(estoque.getQuantidade().subtract(quantidade));
+	    }
+	}
+	
+	private void atualizarEstoqueEntradaKit(Produto kit, BigDecimal quantidadeTotal) {
+    	kit.getEstoque().setQuantidade(kit.getEstoque().getQuantidade().add(quantidadeTotal));
+	    for (ProdutoVariacao variacao : kit.getVariacoes()) {
+	        BigDecimal qtdePorVez = quantidadeTotal.multiply((variacao.getQtdeporPacote()));
+	        
+	        variacao.setQtdeEstoque(variacao.calcularEstoque(kit.getEstoque().getQuantidade().intValue()));
+	    }
+	}
+
+	private void atualizarEstoqueSaidaKit(Produto kit, BigDecimal quantidadeTotal) {
+	    System.out.println("Atualização Kit: " + quantidadeTotal);
+
+	    // Loop pelas variações do kit
+	    for (ProdutoVariacao variacao : kit.getVariacoes()) {
+	        // Calcula a quantidade necessária baseada na variação
+	        BigDecimal qtdeNecessaria = quantidadeTotal.multiply(variacao.getQtdeporPacote());
+	        // Validação de estoque suficiente na variação
+	        if (variacao.getProduto().getEstoque().getQuantidade().compareTo(qtdeNecessaria) < 0) {
+	            throw new NegocioException("Quantidade insuficiente no estoque para a variação: " + variacao.getId());
+	        }
+
+	        // Atualiza o estoque da variação
+	        BigDecimal estoqueAtualVariacao = variacao.getProduto().getEstoque().getQuantidade();
+	        variacao.getProduto().getEstoque().setQuantidade(estoqueAtualVariacao.subtract(qtdeNecessaria));
+
+	        // Atualiza o estoque total do kit
+	        BigDecimal estoqueAtualKit = kit.getEstoque().getQuantidade();
+	        kit.getEstoque().setQuantidade(estoqueAtualKit.subtract(qtdeNecessaria.divide(variacao.getQtdeporPacote())));
+
+	        // Log para depuração
+	        System.out.println("Variação ID " + variacao.getId() + 
+	            " - Qtde Necessária: " + qtdeNecessaria + 
+	            ", Estoque Atual: " + estoqueAtualVariacao + 
+	            ", Estoque Atualizado: " + variacao.getProduto().getEstoque().getQuantidade());
+	    }
+
+	    // Log final para o estoque do kit
+	    System.out.println("Estoque Total do Kit Atualizado: " + kit.getEstoque().getQuantidade());
+	}
+
+
 
 }
