@@ -22,7 +22,6 @@ import com.easyerp.model.dto.MovimentacaoResponse;
 import com.easyerp.model.input.MovimentacaoInput;
 
 import jakarta.transaction.Transactional;
-import lombok.experimental.var;
 
 @Service
 public class MovimentacaoService {
@@ -48,7 +47,7 @@ public class MovimentacaoService {
 			movimentacaoEstoque.getItens().add(item);
 			atualizarQuantidadeVariacao(variacao, itemIp.qtde(), movimentacaoInput.tipoMovimentacao());
 		});
-
+  System.out.println(movimentacaoEstoque.getItens().size()+ "Tamanho lista");
 		verificarMovimentacao(movimentacaoEstoque, movimentacaoInput);
 
 		MovimentacaoEstoque movimetacaoSalva = movimentoEstoqueRepository.save(movimentacaoEstoque);
@@ -58,7 +57,7 @@ public class MovimentacaoService {
 	private void verificarMovimentacao(MovimentacaoEstoque movimentacaoEstoque, MovimentacaoInput movimentacaoInput) {
 		if (movimentacaoEstoque.getTipoMovimentacao().equals(TipoMovimentacao.Entrada)) {
 			movimentacaoEstoque.getItens()
-					.forEach(item -> processarEntradaEstoque(item, item.getQuantidade()));
+					.forEach(item -> processarEntradaEstoque(item, item.getQuantidade(), movimentacaoInput.qtdeProduto()));
 
 		} else {
 			movimentacaoEstoque.getItens()
@@ -79,9 +78,9 @@ public class MovimentacaoService {
 
 	    if (produto.getTipoProduto().equals(TipoProduto.Kit)) {
 	        if (isEntrada) {
-	            atualizarEstoqueEntradaKit(produto, qtdeTotal);
+	            atualizarEstoqueEntradaKit(estoque,  item, qtdeTotal);
 	        } else {
-	            atualizarEstoqueSaidaKit(produto, qtdeTotal);
+	            atualizarEstoqueSaidaKit(item, qtdeTotal);
 	        }
 	    } else {
 	        atualizarEstoqueProdutoSimples(estoque, qtdeTotal, isEntrada);
@@ -100,9 +99,15 @@ public class MovimentacaoService {
 	private ItemMovimentacao criarItemMovimentacao(MovimentacaoEstoque movimentacaoEstoque, ProdutoVariacao variacao,
 			BigDecimal qtde, TipoMovimentacao tipoMovimentacao) {
 		ItemMovimentacao item = new ItemMovimentacao();
+		System.out.println(qtde+ "minha qtde");
+		if(qtde.signum()!=0){
+		
 		item.setMovimentacao(movimentacaoEstoque);
 		item.setProdutoVariacao(variacao);
-		item.setQuantidade((qtde));
+		
+			item.setQuantidade((qtde));
+		}
+		
 		return item;
 	}
 
@@ -138,7 +143,7 @@ public class MovimentacaoService {
 		}
 	}
 
-	private void processarEntradaEstoque(ItemMovimentacao item, BigDecimal qtde) {
+	private void processarEntradaEstoque(ItemMovimentacao item, BigDecimal qtde ,BigDecimal total) {
 		atualizarEstoque(item, qtde, true);
 	}
 
@@ -182,44 +187,51 @@ public class MovimentacaoService {
 	    }
 	}
 	
-	private void atualizarEstoqueEntradaKit(Produto kit, BigDecimal quantidadeTotal) {
-    	kit.getEstoque().setQuantidade(kit.getEstoque().getQuantidade().add(quantidadeTotal));
-	    for (ProdutoVariacao variacao : kit.getVariacoes()) {
-	        BigDecimal qtdePorVez = quantidadeTotal.multiply((variacao.getQtdeporPacote()));
-	        
-	        variacao.setQtdeEstoque(variacao.calcularEstoque(kit.getEstoque().getQuantidade().intValue()));
-	    }
+	private void atualizarEstoqueEntradaKit(Estoque estoque, ItemMovimentacao kit, BigDecimal quantidadeTotal) {
+		System.out.println(quantidadeTotal);
+		estoque.setQuantidade(estoque.getQuantidade().add(kit.getQuantidade()));
+		kit.getProdutoVariacao().calcularEstoque(estoque.getQuantidade().intValue());
+    ///	kit.getProdutoVariacao().getProduto().getEstoque().
+    //	setQuantidade(kit.getProdutoVariacao().getProduto().getEstoque().getQuantidade().add(quantidadeTotal));
+//    for (ProdutoVariacao variacao : kit.getVariacoes()) {
+//	        BigDecimal qtdePorVez = quantidadeTotal.multiply((variacao.getQtdeporPacote()));
+//          kit.getEstoque().setQuantidade(qtdePorVez);
+//      variacao.setQtdeEstoque(variacao.calcularEstoque(kit.getEstoque().getQuantidade().intValue()));
+	
+//	    }
+//	}
 	}
-
-	private void atualizarEstoqueSaidaKit(Produto kit, BigDecimal quantidadeTotal) {
+	private void atualizarEstoqueSaidaKit(ItemMovimentacao kit, BigDecimal quantidadeTotal) {
 	    System.out.println("Atualização Kit: " + quantidadeTotal);
 
 	    // Loop pelas variações do kit
-	    for (ProdutoVariacao variacao : kit.getVariacoes()) {
-	        // Calcula a quantidade necessária baseada na variação
-	        BigDecimal qtdeNecessaria = quantidadeTotal.multiply(variacao.getQtdeporPacote());
-	        // Validação de estoque suficiente na variação
-	        if (variacao.getProduto().getEstoque().getQuantidade().compareTo(qtdeNecessaria) < 0) {
-	            throw new NegocioException("Quantidade insuficiente no estoque para a variação: " + variacao.getId());
-	        }
-
-	        // Atualiza o estoque da variação
-	        BigDecimal estoqueAtualVariacao = variacao.getProduto().getEstoque().getQuantidade();
-	        variacao.getProduto().getEstoque().setQuantidade(estoqueAtualVariacao.subtract(qtdeNecessaria));
-
-	        // Atualiza o estoque total do kit
-	        BigDecimal estoqueAtualKit = kit.getEstoque().getQuantidade();
-	        kit.getEstoque().setQuantidade(estoqueAtualKit.subtract(qtdeNecessaria.divide(variacao.getQtdeporPacote())));
-
-	        // Log para depuração
-	        System.out.println("Variação ID " + variacao.getId() + 
-	            " - Qtde Necessária: " + qtdeNecessaria + 
-	            ", Estoque Atual: " + estoqueAtualVariacao + 
-	            ", Estoque Atualizado: " + variacao.getProduto().getEstoque().getQuantidade());
-	    }
+//	    for (ProdutoVariacao variacao : kit.getVariacoes()) {
+//	        // Calcula a quantidade necessária baseada na variação
+//	        BigDecimal qtdeNecessaria = quantidadeTotal.multiply(variacao.getQtdeporPacote());
+//	        // Validação de estoque suficiente na variação
+//	        if (variacao.getProduto().getEstoque().getQuantidade().compareTo(qtdeNecessaria) < 0) {
+//	            throw new NegocioException("Quantidade insuficiente no estoque para a variação: " + variacao.getId());
+//	        }
+//
+//	        // Atualiza o estoque da variação
+//	        BigDecimal estoqueAtualVariacao = variacao.getProduto().getEstoque().getQuantidade();
+//	        variacao.getProduto().getEstoque().setQuantidade(estoqueAtualVariacao.subtract(qtdeNecessaria));
+//
+//	        // Atualiza o estoque total do kit
+//	        BigDecimal estoqueAtualKit = kit.getEstoque().getQuantidade();
+//	        kit.getEstoque().setQuantidade(estoqueAtualKit.subtract(qtdeNecessaria.divide(variacao.getQtdeporPacote())));
+            kit.getProdutoVariacao().getProduto().getEstoque().setQuantidade( kit.getProdutoVariacao().getProduto().getEstoque().getQuantidade()
+            		.subtract(quantidadeTotal.multiply(kit.getProdutoVariacao().getQtdeporPacote())));
+            kit.getProdutoVariacao().calcularEstoque(kit.getProdutoVariacao().getProduto().getEstoque().getQuantidade().intValue());
+//	        // Log para depuração
+//	        System.out.println("Variação ID " + variacao.getId() + 
+//	            " - Qtde Necessária: " + qtdeNecessaria + 
+//	            ", Estoque Atual: " + estoqueAtualVariacao + 
+//	            ", Estoque Atualizado: " + variacao.getProduto().getEstoque().getQuantidade());
+//	    }
 
 	    // Log final para o estoque do kit
-	    System.out.println("Estoque Total do Kit Atualizado: " + kit.getEstoque().getQuantidade());
+	    System.out.println("Estoque Total do Kit Atualizado: " + kit.getProdutoVariacao().getProduto().getEstoque().getQuantidade());
 	}
 
 
