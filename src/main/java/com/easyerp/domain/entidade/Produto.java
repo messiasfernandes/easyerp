@@ -73,6 +73,7 @@ public class Produto extends GeradorId {
 		this.precoVenda = produtoCadastroInput.precoVenda();
 		this.custo = produtoCadastroInput.custo();
 		this.custoMedio = produtoCadastroInput.custoMedio();
+		this.tipoProduto= produtoCadastroInput.tipoProduto();
 		this.marca = criarMarca(produtoCadastroInput.marca());
 		this.estoque = criarEstoque();
 		this.subCategoria = criarSubCategoria(produtoCadastroInput.subCategoria());
