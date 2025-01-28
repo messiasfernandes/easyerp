@@ -136,11 +136,11 @@ public class MovimentacaoService {
 
 	private void atualizarQuantidadeVariacao(ProdutoVariacao variacao, BigDecimal qtde,
 			TipoMovimentacao tipoMovimentacao) {
-		System.out.println("id"+ variacao.getId());
+		System.out.println("id" + variacao.getId());
 		if (tipoMovimentacao == TipoMovimentacao.Entrada) {
-			
+
 			variacao.setQtdeEstoque(variacao.getQtdeEstoque() + qtde.intValue());
-		
+
 		} else {
 			if (variacao.getQtdeEstoque() < qtde.intValue()) {
 				throw new NegocioException("Quantidade insuficiente no estoque da variação: " + variacao.getId());
@@ -149,7 +149,8 @@ public class MovimentacaoService {
 			variacao.setQtdeEstoque(variacao.getQtdeEstoque() - qtde.intValue());
 		}
 		System.out.println(variacao.getQtdeEstoque() + "estoque atual variacao");
-		System.out.println(qtde + "qtde vinda movimentacao");;
+		System.out.println(qtde + "qtde vinda movimentacao");
+		;
 		System.out.println(variacao.getQtdeEstoque() + "soma  variacao quantidade final");
 		System.out.println(variacao.getProduto().getEstoque().getQuantidade() + "estoque ");
 	}
@@ -182,13 +183,13 @@ public class MovimentacaoService {
 		estoque.setQuantidade(BigDecimal.ZERO);
 		estoque.setDataAlteracao(LocalDateTime.now());
 		estoque.setDataCadastro(LocalDateTime.now());
+		System.out.println(estoque.getDataCadastro());
 		estoque.setProduto(produto);
 		produto.setEstoque(estoque);
 		return estoque;
 	}
 
 	private void atualizarEstoqueProdutoSimples(Estoque estoque, BigDecimal quantidade, boolean isEntrada) {
-		// System.out.println("quantidade" + quantidade);
 
 		if (isEntrada) {
 			estoque.setQuantidade(estoque.getQuantidade().add(quantidade));
@@ -253,8 +254,10 @@ public class MovimentacaoService {
 
 	private void entradaEstoque(MovimentacaoEstoque movimentacaoEstoque, MovimentacaoInput movimentacaoInput,
 			Produto produto) {
+		Integer variacaoEstoque = 0;
 		Estoque estoque = new Estoque();
 		if (produto.getEstoque() == null) {
+			System.out.println("inicia");
 			inicializarEstoque(produto);
 		} else {
 			estoque = produto.getEstoque();
@@ -271,43 +274,51 @@ public class MovimentacaoService {
 		if (movimentacaoEstoque.getTipoMovimentacao().equals(TipoMovimentacao.Entrada)
 				&& (produto.getTipoProduto().equals(TipoProduto.Kit))) {
 			for (var varicao : produto.getVariacoes()) {
-			    System.out.println(estoque.getQuantidade()+" estoque quantidade");
-				//var variacaoEstoque = varicao.calcularEstoque(estoque.getQuantidade().intValue());
-             //   System.out.println(variacaoEstoque+"variacao estoque");
+				System.out.println(estoque.getQuantidade() + " estoque quantidade");
+				if (varicao.getQtdeEstoque() == 0) {
+					variacaoEstoque = estoque.getQuantidade().intValue();
+				} else {
+					variacaoEstoque = varicao.calcularEstoque(estoque.getQuantidade().intValue());
+					
+				}
+				varicao.setQtdeEstoque(varicao.getQtdeEstoque()+ varicao.calcularEstoque(variacaoEstoque));
+			  	System.out.println(variacaoEstoque + "variacao estoque");
 				var item = new ItemMovimentacao();
-				item.setQuantidade(new BigDecimal(varicao.calcularEstoque(estoque.getQuantidade().intValue())));
-				System.out.println(item.getQuantidade()+"qtde movimentada");
+				item.setQuantidade(new BigDecimal(variacaoEstoque));
+				System.out.println(item.getQuantidade() + "qtde movimentada");
 				item.setMovimentacao(movimentacaoEstoque);
 				item.setSaldoanterior(qteAnterior);
 				item.setProdutoVariacao(varicao);
+
 				movimentacaoEstoque.getItens().add(item);
+
 			}
-		} else {
-
-			movimentacaoInput.itens().forEach(itemIp -> {
-				ProdutoVariacao variacao = buscarVariacao(produto, itemIp.variacoes().id());
-				ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, itemIp.qtde(),
-
-						movimentacaoInput.tipoMovimentacao());
-			
-				movimentacaoEstoque.getItens().add(item);
-				atualizarQuantidadeVariacao(variacao, itemIp.qtde(), movimentacaoInput.tipoMovimentacao());
-			});
-
-			BigDecimal somaVariacoes = movimentacaoInput.itens().stream().map(varicao -> varicao.qtde())
-					.reduce(BigDecimal.ZERO, BigDecimal::add);
-     
-			if (somaVariacoes.compareTo(movimentacaoInput.qtdeProduto()) != 0) {
-				throw new NegocioException(
-						"A soma das quantidades das variações excede a quantidade total em estoque.");
-			}
-
 		}
-		produto.setEstoque(estoque);
-		estoque.setProduto(produto);
-		estoque.setDataAlteracao(LocalDateTime.now());
 
-		produtoRepository.save(produto);
+	else
+
+	{
+
+		movimentacaoInput.itens().forEach(itemIp -> {
+			ProdutoVariacao variacao = buscarVariacao(produto, itemIp.variacoes().id());
+			ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, itemIp.qtde(),
+
+					movimentacaoInput.tipoMovimentacao());
+
+			movimentacaoEstoque.getItens().add(item);
+			atualizarQuantidadeVariacao(variacao, itemIp.qtde(), movimentacaoInput.tipoMovimentacao());
+		});
+
+		BigDecimal somaVariacoes = movimentacaoInput.itens().stream().map(varicao -> varicao.qtde())
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		if (somaVariacoes.compareTo(movimentacaoInput.qtdeProduto()) != 0) {
+			throw new NegocioException("A soma das quantidades das variações excede a quantidade total em estoque.");
+		}
+
+	}produto.setEstoque(estoque);estoque.setProduto(produto);estoque.setDataAlteracao(LocalDateTime.now());
+
+	produtoRepository.save(produto);
 	}
 
 	private void AtualizarEstoque(MovimentacaoEstoque movimentacaoEstoque, BigDecimal totalEstoque) {
