@@ -100,7 +100,7 @@ public class MovimentacaoService {
 			item.setMovimentacao(movimentacaoEstoque);
 			item.setProdutoVariacao(variacao);
 
-			item.setQuantidade((qtde));
+			item.setQuantidade(( qtde));
 			item.setSaldoanterior(saldoAnterior);
 		}
 
@@ -312,7 +312,7 @@ public class MovimentacaoService {
 	
 	private void saidaEstoque(MovimentacaoEstoque movimentacaoEstoque, MovimentacaoInput movimentacaoInput,
 			Produto produto) {
-		Estoque estoque = new Estoque();
+	Estoque estoque = new Estoque();
 		if (produto.getEstoque() == null) {
 			throw new NegocioException(
 					"A soma das quantidades das variações excede a quantidade total em estoque.");
@@ -333,11 +333,11 @@ public class MovimentacaoService {
 
 				movimentacaoEstoque.getItens().add(item);
 				atualizarQuantidadeVariacao(variacao, itemIp.qtde(), movimentacaoInput.tipoMovimentacao());
-				atualizarEstoqueProdutoSimples(item.getProdutoVariacao().getProduto().getEstoque() ,item.getQuantidade(), false);
+				atualizarEstoqueProdutoSimples(produto.getEstoque() ,item.getQuantidade(), false);
 			});
 		}
 	
-		produto.setEstoque(estoque);
+		//produto.setEstoque(estoque);
 		estoque.setDataAlteracao(LocalDateTime.now());
 		produtoRepository.save(produto);
 		
