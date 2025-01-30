@@ -7,7 +7,7 @@ import java.util.Set;
 import com.easyerp.domain.enumerados.TipoMovimentacao;
 
 
-public record MovimentacaoInput(Long idProduto, String obsevacao, TipoMovimentacao tipoMovimentacao, BigDecimal qtdeProduto, 
+public record MovimentacaoInput(Long idProduto, String observacao, TipoMovimentacao tipoMovimentacao, BigDecimal qtdeProduto, 
 		Set<ItemMovimentacoaInput>itens
 ) {
 

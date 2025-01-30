@@ -44,7 +44,7 @@ public class MovimentacaoEstoque {
 	public MovimentacaoEstoque(MovimentacaoInput movimentacaoInput) {
 		this.dataMovimentacao= LocalDateTime.now();
 		this.tipoMovimentacao= movimentacaoInput.tipoMovimentacao();
-		this.observacao= movimentacaoInput.obsevacao();
+		this.observacao= movimentacaoInput.observacao();
 
 	}
 
