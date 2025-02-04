@@ -121,15 +121,17 @@ public class MovimentacaoService {
 
 	private void atualizarEstoqueProdutoEvariacao(Estoque estoque, BigDecimal quantidade, ItemMovimentacao item) {
    System.out.println(quantidade+ "qtde vinda");
+  
 		estoque.setQuantidade(
 				estoque.getQuantidade().subtract(quantidade.multiply(item.getProdutoVariacao().getQtdeporPacote())));
 
 
 		if (item.getProdutoVariacao().getProduto().getTipoProduto().equals(TipoProduto.Kit)) {
+			
 			item.getProdutoVariacao()
 					.setQtdeEstoque(item.getProdutoVariacao().calcularEstoque(estoque.getQuantidade().intValue()));
 			
-			 System.out.println(item.getProdutoVariacao().getQtdeEstoque()+ "qtdeida");
+			 System.out.println(item.getProdutoVariacao().getQtdeEstoque()+ "qtde saida");
 		}
 
 		if (estoque.getQuantidade().compareTo(quantidade) < 0) {
@@ -222,7 +224,7 @@ public class MovimentacaoService {
 			estoque = produto.getEstoque();
 		}
 		BigDecimal qteAnterior = estoque.getQuantidade();
-
+	
 		movimentacaoInput.itens().forEach(itemIp -> {
 			ProdutoVariacao variacao = buscarVariacao(produto, itemIp.variacoes().id());
 			ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, itemIp.qtde(),
@@ -231,11 +233,22 @@ public class MovimentacaoService {
 
 			movimentacaoEstoque.getItens().add(item);
 			atualizarQuantidadeVariacao(variacao, itemIp.qtde(), movimentacaoInput.tipoMovimentacao());
+			System.out.println(produto.getEstoque().getQuantidade()+ "quatidade no estoque total");
+			
+	  	produto.getEstoque().setQuantidade(	somaQuatidadeVariacao(variacao,  produto.getEstoque()));
 			atualizarEstoqueProdutoEvariacao(produto.getEstoque(), item.getQuantidade(), item);
+			System.out.println(produto.getEstoque().getQuantidade()+ "quatidade atualizada na variacao");
 		});
 
 		estoque.setDataAlteracao(LocalDateTime.now());
 		produtoRepository.save(produto);
 
+	}
+
+	private BigDecimal somaQuatidadeVariacao(ProdutoVariacao variacao,Estoque estoque) {
+	     estoque.setQuantidade(estoque.getQuantidade().subtract(new BigDecimal(variacao.getQtdeEstoque())));
+	     System.out.println(estoque.getQuantidade()+"soma quantidade");
+		return  estoque.getQuantidade();
+		
 	}
 }
