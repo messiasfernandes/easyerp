@@ -8,7 +8,7 @@ import com.easyerp.domain.enumerados.TipoMovimentacao;
 
 
 public record MovimentacaoInput(Long idProduto, String observacao, TipoMovimentacao tipoMovimentacao, BigDecimal qtdeProduto, 
-		Set<ItemMovimentacoaInput>itens
+		Set<ItemdeMovimentacaoInput>itens
 ) {
 
 }

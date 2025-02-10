@@ -120,6 +120,11 @@ public class ProdutoVariacao implements Serializable {
 		} else {
 			this.qtdeEstoque = qtdeEstoque != null ? qtdeEstoque : 0;
 		}
+		
+		  if (this.produto.getEstoque().getQuantidade().intValue() < qtdeporPacote.intValue()) {
+		        this.qtdeEstoque = 0;
+		    }
+
 
 		return this.qtdeEstoque;
 	}
