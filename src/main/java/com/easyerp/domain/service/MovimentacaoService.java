@@ -34,7 +34,7 @@ public class MovimentacaoService {
 
 	@Transactional
 	public MovimentacaoResponse registrarMovimentacao(MovimentacaoInput movimentacaoInput) {
-		validarMovimentacaoInput(movimentacaoInput);
+	//	validarMovimentacaoInput(movimentacaoInput);
 		MovimentacaoEstoque movimentacaoEstoque = movimentacaoEstoqueMapper.converter(movimentacaoInput,
 				MovimentacaoEstoque::new);
 		Produto produto = buscarProduto(movimentacaoInput.idProduto());
@@ -103,6 +103,8 @@ public class MovimentacaoService {
 	}
 
 	private void validarMovimentacaoInput(MovimentacaoInput movimentacaoInput) {
+		
+		
 		if (movimentacaoInput == null || movimentacaoInput.itens().isEmpty()) {
 			throw new NegocioException("A movimentação deve conter ao menos um item.");
 		}
