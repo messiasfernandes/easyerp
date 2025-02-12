@@ -83,7 +83,7 @@ public class ProdutoVariacao implements Serializable {
 		if ((variacaoCadastroInput.codigoEan13() == null || variacaoCadastroInput.codigoEan13().isBlank())) {
 			this.codigoEan13 = GeradordeCodigo.CriarEAN13();
 		} else {
-			// 2. Caso contrário, use o código fornecido (ou null se não houver):
+		
 			this.codigoEan13 = Optional.ofNullable(variacaoCadastroInput.codigoEan13())
 					.filter(codigo -> !codigo.isBlank()).map(CodigoBarraEAN::new).flatMap(CodigoBarraEAN::validar)
 					.map(CodigoBarraEAN::getCodigoBarra)

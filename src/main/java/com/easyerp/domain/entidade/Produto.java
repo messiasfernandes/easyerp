@@ -138,8 +138,6 @@ public class Produto extends GeradorId {
 			    .reduce(BigDecimal.ZERO, BigDecimal::add);
 		return custo;
 				
-			//	variacaoCadastroInput.componentes().stream()
-				//.map(c -> c.custodeProducao().add(c.precoCusto().multiply(c.qtde())))
-				//.reduce(BigDecimal.ZERO, BigDecimal::add);
+		
 	}
 }

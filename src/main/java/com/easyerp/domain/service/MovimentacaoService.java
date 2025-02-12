@@ -34,11 +34,11 @@ public class MovimentacaoService {
 
 	@Transactional
 	public MovimentacaoResponse registrarMovimentacao(MovimentacaoInput movimentacaoInput) {
-	//	validarMovimentacaoInput(movimentacaoInput);
+		
+		Produto produto = buscarProduto(movimentacaoInput.idProduto());
+		validarMovimentacaoInput(movimentacaoInput);
 		MovimentacaoEstoque movimentacaoEstoque = movimentacaoEstoqueMapper.converter(movimentacaoInput,
 				MovimentacaoEstoque::new);
-		Produto produto = buscarProduto(movimentacaoInput.idProduto());
-
 		verificarMovimentacao(movimentacaoEstoque, produto, movimentacaoInput);
 
 		MovimentacaoEstoque movimetacaoSalva = movimentoEstoqueRepository.save(movimentacaoEstoque);
