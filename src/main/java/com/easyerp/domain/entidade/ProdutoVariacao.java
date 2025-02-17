@@ -59,6 +59,9 @@ public class ProdutoVariacao implements Serializable {
 	private String codigoEan13;
 	@Digits(integer = 9, fraction = 4)
 	private BigDecimal custoAdicional = BigDecimal.ZERO;
+	
+	@Digits(integer = 9, fraction = 4)
+	private BigDecimal desconto = BigDecimal.ZERO;
 	@Digits(integer = 9, fraction = 4)
 	private BigDecimal qtdeporPacote = BigDecimal.ONE;
 	@Setter(value = AccessLevel.NONE)
