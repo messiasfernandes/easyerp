@@ -9,7 +9,7 @@ import com.easyerp.utils.anotacoes.FormatBigDecimal;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, String unidade, Integer qtdeEstoque,
-		BigDecimal qtdeporEmbalagem, @FormatBigDecimal	  BigDecimal precoVenda, String caracterisca,
+		BigDecimal qtdeporEmbalagem,   BigDecimal precoVenda, String caracterisca,
 		@JsonIgnore Set<AtributoResponse> caracteristicas, Set<ComponenteResponse> componentes) {
 	public ProdutoVariacaoResponse(ProdutoVariacao produtoVariacao) {
 		this(produtoVariacao.getId(), produtoVariacao.getDescricao(), produtoVariacao.getCodigoEan13(),
@@ -35,7 +35,7 @@ public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, S
 
 	public static BigDecimal CalcularPreco(BigDecimal preco_Venda, BigDecimal desconto, BigDecimal qtdePacote) {
 		BigDecimal resultado = BigDecimal.ZERO;
-		if(desconto.signum()!=0){
+		if(desconto.signum()!=0 ){
 			resultado = resultado.add(preco_Venda.multiply(qtdePacote));
 			System.out.println(resultado+ "resulado");
 			resultado =resultado.subtract(resultado.multiply(desconto));

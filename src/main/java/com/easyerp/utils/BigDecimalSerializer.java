@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 public class BigDecimalSerializer extends JsonSerializer<BigDecimal> {
-    private static final DecimalFormat df = new DecimalFormat("0.00");
+ 
 
     @Override
     public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
