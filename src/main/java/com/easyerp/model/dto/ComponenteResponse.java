@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import com.easyerp.domain.entidade.Componente;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ComponenteResponse(Long id, String produto ,
 		 String codigoEan13 ,BigDecimal qtde, BigDecimal custodeProducao, BigDecimal total)  {
 	

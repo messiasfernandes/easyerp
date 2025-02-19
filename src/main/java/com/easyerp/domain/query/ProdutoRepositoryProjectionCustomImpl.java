@@ -53,7 +53,7 @@ public class ProdutoRepositoryProjectionCustomImpl extends ServiceFuncoes implem
 
 				p.getCusto(), p.getCustoMedio(), p.getPrecoVenda(),
 			//	p.getSubCategoria().getSubcategoriaNome(),
-				p.getEstoque() != null ? new EstoqueResponse(p.getEstoque().getQuantidade()) : null,
+				p.getEstoque() != null ? new EstoqueResponse(p.getEstoque().getQuantidade().intValue()) : null,
 				p.getMarca() != null ? new MarcaResponse(p.getMarca().getId(), p.getMarca().getNomeMarca()) : null,
 				variacoesPorProduto.getOrDefault(p.getId(), Collections.emptySet()))).toList();
 

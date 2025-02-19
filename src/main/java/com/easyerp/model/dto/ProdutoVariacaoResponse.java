@@ -7,10 +7,11 @@ import java.util.stream.Collectors;
 import com.easyerp.domain.entidade.ProdutoVariacao;
 import com.easyerp.utils.anotacoes.FormatBigDecimal;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, String unidade, Integer qtdeEstoque,
-		BigDecimal qtdeporEmbalagem,   BigDecimal precoVenda, String caracterisca,
-		@JsonIgnore Set<AtributoResponse> caracteristicas, Set<ComponenteResponse> componentes) {
+		BigDecimal qtdeporEmbalagem,  @FormatBigDecimal BigDecimal precoVenda, String caracterisca,
+		@JsonIgnore Set<AtributoResponse> caracteristicas,  @JsonInclude(JsonInclude.Include.NON_EMPTY)  Set<ComponenteResponse> componentes) {
 	public ProdutoVariacaoResponse(ProdutoVariacao produtoVariacao) {
 		this(produtoVariacao.getId(), produtoVariacao.getDescricao(), produtoVariacao.getCodigoEan13(),
 				produtoVariacao.getUnidadeMedida().getEmbalageNome(), produtoVariacao.getQtdeEstoque(),
