@@ -59,7 +59,7 @@ public class ProdutoVariacao implements Serializable {
 	private String codigoEan13;
 	@Digits(integer = 9, fraction = 4)
 	private BigDecimal custoAdicional = BigDecimal.ZERO;
-	
+	@Setter(value = AccessLevel.NONE)
 	@Digits(integer = 9, fraction = 4)
 	private BigDecimal desconto = BigDecimal.ZERO;
 	@Digits(integer = 9, fraction = 4)
@@ -111,6 +111,9 @@ public class ProdutoVariacao implements Serializable {
 
 	public ProdutoVariacao() {
 
+	}
+	public void setDesconto(BigDecimal desconto) {
+		this.desconto = desconto.divide(new BigDecimal(100));
 	}
 	
 	public Integer calcularEstoque(Integer qtdeEstoque) {
