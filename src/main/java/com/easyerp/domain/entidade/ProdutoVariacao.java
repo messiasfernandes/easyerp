@@ -121,6 +121,7 @@ public class ProdutoVariacao implements Serializable {
 
 	public Integer calcularEstoqueKit(Integer qtdeMovimentada) {
 	    // Estoque anterior em itens:
+		int novaQtde =qtdeMovimentada/ this.qtdeporPacote.intValue();
 	    Integer estoqueAnteriorItens = this.produto.getEstoque().getQuantidade().intValue(); 
 	    int qtdePorPacote = qtdeporPacote.intValue(); // Ex.: 15
 
@@ -128,22 +129,30 @@ public class ProdutoVariacao implements Serializable {
 	    int estoqueAnteriorKits = estoqueAnteriorItens / qtdePorPacote;
 	    
 	    // Calcula os kits gerados pela movimentação:
-	    int kitsMovimentados = qtdeMovimentada / qtdePorPacote;
+	    int kitsMovimentados=0;
+	   
 	    
 	    // Novo estoque de kits:
 	    int novoEstoqueKits = estoqueAnteriorKits + kitsMovimentados;
-	    
+	    if(qtdePorPacote>1) {
+	    	 kitsMovimentados = this.qtdeEstoque.intValue()+ novaQtde;
+	    	 this.qtdeEstoque= kitsMovimentados;
+	    	/// novoEstoqueKits = estoqueAnteriorKits + kitsMovimentados;
+	    }else {
+	    	System.out.println("Estoque anterior: " + this.produto.getEstoque().getQuantidade().intValue());
+	    	this.qtdeEstoque +=  novaQtde;
+	    }
 	    System.out.println("Estoque anterior em itens: " + estoqueAnteriorItens);
 	    System.out.println("Estoque anterior em kits: " + estoqueAnteriorKits);
 	    System.out.println("Kits gerados pela movimentação: " + kitsMovimentados);
-	    System.out.println("Novo estoque de kits: " + novoEstoqueKits);
-	    
+	    System.out.println("Novo estoque de kits: " + novaQtde);
+	    System.out.println("Final estoque de kits: " + this.qtdeEstoque);
 	    // Se o estoque de itens for menor que o necessário para formar um kit, zera o estoque de kits:
 	    if (estoqueAnteriorItens < qtdePorPacote) {
 	        novoEstoqueKits = 0;
 	    }
 	    
-	    this.qtdeEstoque = novoEstoqueKits;
+	   // this.qtdeEstoque = novoEstoqueKits;
 	    return this.qtdeEstoque;
 	}
 

@@ -15,7 +15,6 @@ import com.easyerp.domain.entidade.MovimentacaoEstoque;
 import com.easyerp.domain.entidade.Produto;
 import com.easyerp.domain.entidade.ProdutoVariacao;
 import com.easyerp.domain.enumerados.TipoMovimentacao;
-import com.easyerp.domain.enumerados.TipoProduto;
 import com.easyerp.domain.repository.MovimentoEstoqueRepository;
 import com.easyerp.domain.repository.ProdutoRepository;
 import com.easyerp.domain.service.exeption.NegocioException;
@@ -60,7 +59,7 @@ public class MovimentacaoEstoqueService {
 
 	private void entradaEstoque(MovimentacaoEstoque movimentacaoEstoque, MovimentacaoInput movimentacaoInput,
 			Produto produto) {
-		Integer variacaoEstoque = 0;
+	
 		Estoque estoque = new Estoque();
 		estoque = atualizarQtdeTotal(produto, estoque);
 		BigDecimal qteAnterior = estoque.getQuantidade();
@@ -109,45 +108,62 @@ public class MovimentacaoEstoqueService {
 				.orElseThrow(() -> new RegistroNaoEncontrado("Produto não encontrado para o ID: " + produtoId));
 	}
 	
-	private MovimentacaoEstoque processarItem(MovimentacaoInput movimentacaoInput , MovimentacaoEstoque movimentacaoEstoque, Produto produto, BigDecimal saldoAterior) {
+	private MovimentacaoEstoque processarItem(
+	        MovimentacaoInput movimentacaoInput, 
+	        MovimentacaoEstoque movimentacaoEstoque, 
+	        Produto produto, 
+	        BigDecimal saldoAterior) {
+
+	    // Obtém as variações do produto
 	    Set<ProdutoVariacao> variacoesDoProduto = produto.getVariacoes();
-	    for(var item : movimentacaoInput.itens()) {
-	    	Long idVariacao=item.variacoes().id();
-	    	Optional<ProdutoVariacao> variacaoEncontrada = variacoesDoProduto.
-	    			stream().filter(v -> v.getId().equals(idVariacao)).findFirst();
-	    	if(variacaoEncontrada.isPresent()) {
-	    		 ProdutoVariacao variacao = variacaoEncontrada.get();
-	                // Exemplo: criar um ItemMovimentacao (classe de domínio) para registrar a movimentação
+
+	    // Processa as variações que possuem qtdePorPacote igual a 1
+	    for (ProdutoVariacao variacao : variacoesDoProduto) {
+	        for (var item : movimentacaoInput.itens()) {
+	            // Verifica se o id da variação do item confere com a variação atual 
+	            // e se a quantidade por pacote é 1
+	            if (item.variacoes().id().equals(variacao.getId())
+	                    || variacao.getQtdeporPacote().compareTo(BigDecimal.ONE)==0) {
+
+	                // Cria um ItemMovimentacao para registrar a movimentação
 	                ItemMovimentacao itemMovimentacao = new ItemMovimentacao();
 	                itemMovimentacao.setQuantidade(item.qtde());
+	                
+	                // Atualiza o estoque: soma o saldo anterior com o estoque já registrado na variação
+	                variacao.setQtdeEstoque(saldoAterior.intValue() + variacao.getQtdeEstoque().intValue());
+	                
+	                // Se necessário, calcula o estoque em kit (caso essa operação seja diferente)
+	              //  variacao.calcularEstoqueKit(movimentacaoInput.qtdeProduto().intValue());
+	                
+	                // Registra os demais valores
 	                itemMovimentacao.setProdutoVariacao(variacao);
 	                itemMovimentacao.setSaldoanterior(saldoAterior);
 	                itemMovimentacao.setMovimentacao(movimentacaoEstoque);
-	               
-	             //   if(variacao.getProduto().getTipoProduto().equals(TipoProduto.Kit)) {
-	                System.out.println(variacao.getQtdeporPacote()+"qtde pacate");
-	             
-	                		System.out.println(item.qtde());
-	                		System.out.println("pasou aqui");
-	                		   var novaQteVaraicao=	variacao.calcularEstoqueKit(item.qtde().intValue());
-	                		   System.out.println(novaQteVaraicao);
-	                		  // variacao.setQtdeEstoque(   novaQteVaraicao);
-	         
-	               
-	              
-	             
-	               
-	                //	var novaPacote = variacao.calcualarEstoqueKit(item.qtde().intValue());
-	                //	var novaQtde= variacao.getQtdeEstoque()+ novaPacote;
-	                //	System.out.println("nova qtde "+ novaQtde);
-	                //	System.out.println("varicao qtde "+ variacao.getQtdeEstoque());
-	           
-	              	System.out.println("Variacao atualizada "+ variacao.getQtdeEstoque());
-	              	 movimentacaoEstoque.getItens().add(itemMovimentacao);
-	           //    }
-	    	}
+	                
+	                movimentacaoEstoque.getItens().add(itemMovimentacao);
+	            }
+	        }
 	    }
-		return movimentacaoEstoque;
+
+	    // Processa as variações que possuem qtdePorPacote diferente de 1
+	    for (var item : movimentacaoInput.itens()) {
+	        Long idVariacao = item.variacoes().id();
+	        Optional<ProdutoVariacao> variacaoEncontrada = variacoesDoProduto.stream()
+	                .filter(v -> v.getId().equals(idVariacao) && v.getQtdeporPacote().intValue() != 1)
+	                .findFirst();
+
+	        if (variacaoEncontrada.isPresent()) {
+	            ProdutoVariacao variacao = variacaoEncontrada.get();
+	            ItemMovimentacao itemMovimentacao = new ItemMovimentacao();
+	            itemMovimentacao.setQuantidade(item.qtde());
+	            itemMovimentacao.setProdutoVariacao(variacao);
+	            itemMovimentacao.setSaldoanterior(saldoAterior);
+	            itemMovimentacao.setMovimentacao(movimentacaoEstoque);
+	            variacao.calcularEstoqueKit(item.qtde().intValue());
+	            movimentacaoEstoque.getItens().add(itemMovimentacao);
+	        }
+	    }
+	    return movimentacaoEstoque;
 	}
 
 	private ItemMovimentacao criarItemMovimentacao(MovimentacaoEstoque movimentacaoEstoque, BigDecimal saldoAnterior,
