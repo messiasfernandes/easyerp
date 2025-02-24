@@ -8,15 +8,18 @@ import com.easyerp.domain.entidade.ProdutoVariacao;
 import com.easyerp.utils.anotacoes.FormatBigDecimal;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, String unidade, Integer qtdeEstoque,
-		BigDecimal qtdeporEmbalagem,  @FormatBigDecimal BigDecimal precoVenda, String caracterisca,
-		@JsonIgnore Set<AtributoResponse> caracteristicas,  @JsonInclude(JsonInclude.Include.NON_EMPTY)  Set<ComponenteResponse> componentes) {
+		BigDecimal qtdeporEmbalagem, @FormatBigDecimal BigDecimal precoVenda, String caracterisca,
+		@JsonIgnore Set<AtributoResponse> caracteristicas,
+		@JsonInclude(JsonInclude.Include.NON_EMPTY) Set<ComponenteResponse> componentes) {
 	public ProdutoVariacaoResponse(ProdutoVariacao produtoVariacao) {
 		this(produtoVariacao.getId(), produtoVariacao.getDescricao(), produtoVariacao.getCodigoEan13(),
 				produtoVariacao.getUnidadeMedida().getEmbalageNome(), produtoVariacao.getQtdeEstoque(),
 				produtoVariacao.getQtdeporPacote(),
-				CalcularPreco(produtoVariacao.getProduto().getPrecoVenda(), produtoVariacao.getDesconto(), produtoVariacao.getQtdeporPacote()),
+				CalcularPreco(produtoVariacao.getProduto().getPrecoVenda(), produtoVariacao.getDesconto(),
+						produtoVariacao.getQtdeporPacote()),
 				concatenar(
 						produtoVariacao.getAtributos().stream().map(AtributoResponse::new).collect(Collectors.toSet())),
 
@@ -36,16 +39,16 @@ public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, S
 
 	public static BigDecimal CalcularPreco(BigDecimal preco_Venda, BigDecimal desconto, BigDecimal qtdePacote) {
 		BigDecimal resultado = BigDecimal.ZERO;
-		if(desconto.signum()!=0 ){
+		if (desconto.signum() != 0) {
 			resultado = resultado.add(preco_Venda.multiply(qtdePacote));
-			System.out.println(resultado+ "resulado");
-			resultado =resultado.subtract(resultado.multiply(desconto));
-		}else {
-			resultado= preco_Venda;
+			System.out.println(resultado + "resulado");
+			resultado = resultado.subtract(resultado.multiply(desconto));
+		} else {
+			resultado = preco_Venda;
 		}
-	
+
 		return resultado;
-				//BigDecimalUtil.format(resultado);
-				//resultado.setScale(2, RoundingMode.HALF_UP);
+		// BigDecimalUtil.format(resultado);
+		// resultado.setScale(2, RoundingMode.HALF_UP);
 	}
 }

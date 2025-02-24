@@ -15,6 +15,7 @@ import com.easyerp.domain.entidade.MovimentacaoEstoque;
 import com.easyerp.domain.entidade.Produto;
 import com.easyerp.domain.entidade.ProdutoVariacao;
 import com.easyerp.domain.enumerados.TipoMovimentacao;
+import com.easyerp.domain.enumerados.TipoProduto;
 import com.easyerp.domain.repository.MovimentoEstoqueRepository;
 import com.easyerp.domain.repository.ProdutoRepository;
 import com.easyerp.domain.service.exeption.NegocioException;
@@ -41,7 +42,8 @@ public class MovimentacaoEstoqueService {
 		MovimentacaoEstoque movimentacaoEstoque = movimentacaoEstoqueMapper.converter(movimentacaoInput,
 				MovimentacaoEstoque::new);
 		this.verificarMovimentacao(movimentacaoEstoque, produto, movimentacaoInput);
-		return movimentacaoEstoqueMapper.converter(movimentacaoEstoque, MovimentacaoResponse::new);
+		MovimentacaoEstoque movimetacaoSalva = movimentoEstoqueRepository.save(movimentacaoEstoque);
+		return movimentacaoEstoqueMapper.converter(movimetacaoSalva, MovimentacaoResponse::new);
 	}
 
 	private void verificarMovimentacao(MovimentacaoEstoque movimentacaoEstoque, Produto produto,
@@ -66,7 +68,9 @@ public class MovimentacaoEstoqueService {
 			estoque.setQuantidade(estoque.getQuantidade().add(movimentacaoInput.qtdeProduto()));
 		}
 		movimentacaoEstoque = processarItem(movimentacaoInput, movimentacaoEstoque, produto, qteAnterior);
-
+		estoque.setDataAlteracao(LocalDateTime.now());
+        produto.setEstoque(estoque);
+        produtoRepository.save(produto);
 	}
 
 	private void saidaEstoque(MovimentacaoEstoque movimentacaoEstoque, MovimentacaoInput movimentacaoInput,
@@ -119,7 +123,28 @@ public class MovimentacaoEstoqueService {
 	                itemMovimentacao.setProdutoVariacao(variacao);
 	                itemMovimentacao.setSaldoanterior(saldoAterior);
 	                itemMovimentacao.setMovimentacao(movimentacaoEstoque);
-	                movimentacaoEstoque.getItens().add(itemMovimentacao);
+	               
+	             //   if(variacao.getProduto().getTipoProduto().equals(TipoProduto.Kit)) {
+	                System.out.println(variacao.getQtdeporPacote()+"qtde pacate");
+	             
+	                		System.out.println(item.qtde());
+	                		System.out.println("pasou aqui");
+	                		   var novaQteVaraicao=	variacao.calcularEstoqueKit(item.qtde().intValue());
+	                		   System.out.println(novaQteVaraicao);
+	                		  // variacao.setQtdeEstoque(   novaQteVaraicao);
+	         
+	               
+	              
+	             
+	               
+	                //	var novaPacote = variacao.calcualarEstoqueKit(item.qtde().intValue());
+	                //	var novaQtde= variacao.getQtdeEstoque()+ novaPacote;
+	                //	System.out.println("nova qtde "+ novaQtde);
+	                //	System.out.println("varicao qtde "+ variacao.getQtdeEstoque());
+	           
+	              	System.out.println("Variacao atualizada "+ variacao.getQtdeEstoque());
+	              	 movimentacaoEstoque.getItens().add(itemMovimentacao);
+	           //    }
 	    	}
 	    }
 		return movimentacaoEstoque;

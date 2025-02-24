@@ -79,14 +79,16 @@ public class ProdutoVariacao implements Serializable {
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "variacao_componente", joinColumns = @JoinColumn(name = "variacao_id"), inverseJoinColumns = @JoinColumn(name = "componente_id"))
 	private Set<Componente> componentes = new HashSet<>();
+
 	public void setQtdeEstoque(Integer qtdeEstoque) {
 		this.qtdeEstoque = this.calcularEstoque(qtdeEstoque);
 	}
+
 	public ProdutoVariacao(VariacaoCadastroInput variacaoCadastroInput) {
 		if ((variacaoCadastroInput.codigoEan13() == null || variacaoCadastroInput.codigoEan13().isBlank())) {
 			this.codigoEan13 = GeradordeCodigo.CriarEAN13();
 		} else {
-		
+
 			this.codigoEan13 = Optional.ofNullable(variacaoCadastroInput.codigoEan13())
 					.filter(codigo -> !codigo.isBlank()).map(CodigoBarraEAN::new).flatMap(CodigoBarraEAN::validar)
 					.map(CodigoBarraEAN::getCodigoBarra)
@@ -100,37 +102,66 @@ public class ProdutoVariacao implements Serializable {
 		if (variacaoCadastroInput.custoAdicional().signum() > 0) {
 			this.custoAdicional = variacaoCadastroInput.custoAdicional();
 		}
-		
+
 		this.atributos = variacaoCadastroInput.atributos().stream().map(Atributo::new).collect(Collectors.toSet());
 		this.qtdeporPacote = variacaoCadastroInput.qtdeporPacote();
 		this.ativo = variacaoCadastroInput.ativo();
 		this.unidadeMedida.setId(variacaoCadastroInput.unidadeInput().id());
 		this.descricao = TolowerCase.normalizarString(variacaoCadastroInput.descricao());
-		
+
 	}
 
 	public ProdutoVariacao() {
 
 	}
+
 	public void setDesconto(BigDecimal desconto) {
 		this.desconto = desconto.divide(new BigDecimal(100));
 	}
-	
+
+	public Integer calcularEstoqueKit(Integer qtdeMovimentada) {
+	    // Estoque anterior em itens:
+	    Integer estoqueAnteriorItens = this.produto.getEstoque().getQuantidade().intValue(); 
+	    int qtdePorPacote = qtdeporPacote.intValue(); // Ex.: 15
+
+	    // Converte o estoque anterior para número de kits:
+	    int estoqueAnteriorKits = estoqueAnteriorItens / qtdePorPacote;
+	    
+	    // Calcula os kits gerados pela movimentação:
+	    int kitsMovimentados = qtdeMovimentada / qtdePorPacote;
+	    
+	    // Novo estoque de kits:
+	    int novoEstoqueKits = estoqueAnteriorKits + kitsMovimentados;
+	    
+	    System.out.println("Estoque anterior em itens: " + estoqueAnteriorItens);
+	    System.out.println("Estoque anterior em kits: " + estoqueAnteriorKits);
+	    System.out.println("Kits gerados pela movimentação: " + kitsMovimentados);
+	    System.out.println("Novo estoque de kits: " + novoEstoqueKits);
+	    
+	    // Se o estoque de itens for menor que o necessário para formar um kit, zera o estoque de kits:
+	    if (estoqueAnteriorItens < qtdePorPacote) {
+	        novoEstoqueKits = 0;
+	    }
+	    
+	    this.qtdeEstoque = novoEstoqueKits;
+	    return this.qtdeEstoque;
+	}
+
+
 	public Integer calcularEstoque(Integer qtdeEstoque) {
 		if (produto != null && produto.getTipoProduto().equals(TipoProduto.Kit) && produto.getEstoque() != null) {
 			BigDecimal quantidade = new BigDecimal(produto.getEstoque().getQuantidade().toString());
 			BigDecimal multiploBD = qtdeporPacote;
-			  
-			this.qtdeEstoque =  quantidade.divide(multiploBD, RoundingMode.FLOOR).intValue();
-					
+
+			this.qtdeEstoque = quantidade.divide(multiploBD, RoundingMode.FLOOR).intValue();
+
 		} else {
 			this.qtdeEstoque = qtdeEstoque != null ? qtdeEstoque : 0;
 		}
-		
-		  if (this.produto.getEstoque().getQuantidade().intValue() < qtdeporPacote.intValue()) {
-		        this.qtdeEstoque = 0;
-		    }
 
+		if (this.produto.getEstoque().getQuantidade().intValue() < qtdeporPacote.intValue()) {
+			this.qtdeEstoque = 0;
+		}
 
 		return this.qtdeEstoque;
 	}
