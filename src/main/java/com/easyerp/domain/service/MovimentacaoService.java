@@ -190,8 +190,10 @@ public class MovimentacaoService {
 				ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, itemIp.qtde(),
 
 						movimentacaoInput.tipoMovimentacao());
-
-				movimentacaoEstoque.getItens().add(item);
+            
+                	movimentacaoEstoque.getItens().add(item);
+                
+				
 				atualizarQuantidadeVariacao(variacao, itemIp.qtde(), movimentacaoInput.tipoMovimentacao());
 			});
 

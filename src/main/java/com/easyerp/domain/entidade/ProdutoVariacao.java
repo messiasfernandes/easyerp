@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.aspectj.weaver.patterns.ThisOrTargetAnnotationPointcut;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -81,7 +82,7 @@ public class ProdutoVariacao implements Serializable {
 	private Set<Componente> componentes = new HashSet<>();
 
 	public void setQtdeEstoque(Integer qtdeEstoque) {
-		this.qtdeEstoque = this.calcularEstoque(qtdeEstoque);
+		this.qtdeEstoque =calcularEstoque(qtdeEstoque);
 	}
 
 	public ProdutoVariacao(VariacaoCadastroInput variacaoCadastroInput) {
@@ -119,56 +120,19 @@ public class ProdutoVariacao implements Serializable {
 		this.desconto = desconto.divide(new BigDecimal(100));
 	}
 
-	public Integer calcularEstoqueKit(Integer qtdeMovimentada) {
-	    // Estoque anterior em itens:
-		int novaQtde =qtdeMovimentada/ this.qtdeporPacote.intValue();
-	    Integer estoqueAnteriorItens = this.produto.getEstoque().getQuantidade().intValue(); 
-	    int qtdePorPacote = qtdeporPacote.intValue(); // Ex.: 15
-
-	    // Converte o estoque anterior para número de kits:
-	    int estoqueAnteriorKits = estoqueAnteriorItens / qtdePorPacote;
-	    
-	    // Calcula os kits gerados pela movimentação:
-	    int kitsMovimentados=0;
-	   
-	    
-	    // Novo estoque de kits:
-	    int novoEstoqueKits = estoqueAnteriorKits + kitsMovimentados;
-	    if(qtdePorPacote>1) {
-	    	 kitsMovimentados = this.qtdeEstoque.intValue()+ novaQtde;
-	    	 this.qtdeEstoque= kitsMovimentados;
-	    	/// novoEstoqueKits = estoqueAnteriorKits + kitsMovimentados;
-	    }else {
-	    	System.out.println("Estoque anterior: " + this.produto.getEstoque().getQuantidade().intValue());
-	    	this.qtdeEstoque +=  novaQtde;
-	    }
-	    System.out.println("Estoque anterior em itens: " + estoqueAnteriorItens);
-	    System.out.println("Estoque anterior em kits: " + estoqueAnteriorKits);
-	    System.out.println("Kits gerados pela movimentação: " + kitsMovimentados);
-	    System.out.println("Novo estoque de kits: " + novaQtde);
-	    System.out.println("Final estoque de kits: " + this.qtdeEstoque);
-	    // Se o estoque de itens for menor que o necessário para formar um kit, zera o estoque de kits:
-	    if (estoqueAnteriorItens < qtdePorPacote) {
-	        novoEstoqueKits = 0;
-	    }
-	    
-	   // this.qtdeEstoque = novoEstoqueKits;
-	    return this.qtdeEstoque;
-	}
-
+	
 
 	public Integer calcularEstoque(Integer qtdeEstoque) {
-		if (produto != null && produto.getTipoProduto().equals(TipoProduto.Kit) && produto.getEstoque() != null) {
+		if(this.qtdeporPacote.compareTo(BigDecimal.ONE)==0) {
 			BigDecimal quantidade = new BigDecimal(produto.getEstoque().getQuantidade().toString());
 			BigDecimal multiploBD = qtdeporPacote;
 
 			this.qtdeEstoque = quantidade.divide(multiploBD, RoundingMode.FLOOR).intValue();
-
-		} else {
-			this.qtdeEstoque = qtdeEstoque != null ? qtdeEstoque : 0;
+		}else {
+	
+			this.qtdeEstoque =( this.qtdeEstoque* qtdeporPacote.intValue()+qtdeEstoque) /this.qtdeporPacote.intValue();
 		}
-
-		if (this.produto.getEstoque().getQuantidade().intValue() < qtdeporPacote.intValue()) {
+		if (  this.produto.getEstoque().getQuantidade().intValue() < qtdeporPacote.intValue()) {
 			this.qtdeEstoque = 0;
 		}
 

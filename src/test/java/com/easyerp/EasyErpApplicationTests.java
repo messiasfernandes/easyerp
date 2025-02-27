@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class EasyErpApplicationTests {
 
-	@Test
+	
 	void contextLoads() {
 		String[] cores = {"azul", "preto", "vermelho"};
         String[] tamanhos = {"pequeno", "medio", "gigante", "extra grande"};
@@ -27,6 +27,14 @@ class EasyErpApplicationTests {
             System.out.println(combinacao);
         }
     }
-	
-
+	@Test
+  void somar() {
+		int saldoatual=30;
+		int qtde=90;
+		int multiplicador=15;
+		int estoque=0;
+		estoque= (saldoatual+qtde)/multiplicador;
+		System.out.println("estoque : "+estoque);
+	  
+  }
 }
