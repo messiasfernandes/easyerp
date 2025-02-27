@@ -63,6 +63,7 @@ public class MovimentacaoEstoqueService {
 		Estoque estoque = new Estoque();
 		estoque = atualizarQtdeTotal(produto, estoque);
 		BigDecimal qteAnterior = estoque.getQuantidade();
+		estoque.setQuantidade(estoque.getQuantidade().add(movimentacaoInput.qtdeProduto()));
 		movimentacaoInput.itens().forEach(itemIp -> {
 			ProdutoVariacao variacao = buscarVariacao(produto, itemIp.variacoes().id());
 			ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, itemIp.qtde(),
@@ -75,6 +76,7 @@ public class MovimentacaoEstoqueService {
 		});
 
 		var variacao = ValidarUnidade(produto, movimentacaoInput.qtdeProduto().intValue());
+		System.out.println(variacao.getQtdeEstoque() +"qtde estoque embalagem 1");
 		ItemMovimentacao item = new ItemMovimentacao();
 
 		item.setQuantidade(movimentacaoInput.qtdeProduto());
@@ -109,9 +111,11 @@ public class MovimentacaoEstoqueService {
 			TipoMovimentacao tipoMovimentacao) {
 	
 		if (tipoMovimentacao == TipoMovimentacao.Entrada) {
-			System.out.println("pasou na atualizacao");
-			variacao.setQtdeEstoque(variacao.calcularEstoque(
-					variacao.getQtdeEstoque() + qtde.intValue() * variacao.getQtdeporPacote().intValue()));
+			System.out.println("pasou na atualizacao" +qtde);
+			var total=variacao.getQtdeEstoque() + qtde.intValue() / variacao.getQtdeporPacote().intValue();
+			System.out.println(total+"");
+			variacao.setQtdeEstoque(variacao.calcularEstoque(total
+					));
 
 		} else {
 			if (variacao.getQtdeEstoque() < qtde.intValue()) {
