@@ -82,9 +82,9 @@ public class MovimentacaoEstoqueService {
 		
 		ItemMovimentacao item = new ItemMovimentacao();
 
-		item.setQuantidade(movimentacaoInput.qtdeProduto());
+	item.setQuantidade(movimentacaoInput.qtdeProduto());
 		item.setSaldoanterior(qteAnterior);
-		item.setMovimentacao(movimentacaoEstoque);
+	item.setMovimentacao(movimentacaoEstoque);
 		item.setProdutoVariacao(variacao);
 
 		movimentacaoEstoque.getItens().add(item);
