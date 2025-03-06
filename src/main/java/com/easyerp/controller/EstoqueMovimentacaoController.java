@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.easyerp.controller.documentacao.EstoqueMovimentacaoControllerOpenApi;
+import com.easyerp.domain.service.EstoqueMovimentacaoService;
 import com.easyerp.domain.service.MovimentacaoEstoqueService;
 import com.easyerp.domain.service.MovimentacaoService;
 import com.easyerp.model.dto.MovimentacaoResponse;
@@ -25,11 +26,12 @@ public class EstoqueMovimentacaoController implements EstoqueMovimentacaoControl
    private MovimentacaoService movimentacaoService;
 	@Autowired
    private MovimentacaoEstoqueService movimentacaoEstoqueService;
+	private EstoqueMovimentacaoService   estoqueMovimentacaoService;
 	@PostMapping
 	@Override
 	public ResponseEntity<MovimentacaoResponse> movimentar( @Valid @RequestBody  MovimentacaoInput estoqueMovimentacaoInput) {
 	
-		return ResponseEntity.status(HttpStatus.CREATED).body(movimentacaoEstoqueService.registroMovimentacao(estoqueMovimentacaoInput));
+		return ResponseEntity.status(HttpStatus.CREATED).body(movimentacaoService.registrarMovimentacao(estoqueMovimentacaoInput));
 	}
 	
 	
