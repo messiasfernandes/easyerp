@@ -26,12 +26,13 @@ public class EstoqueMovimentacaoController implements EstoqueMovimentacaoControl
    private MovimentacaoService movimentacaoService;
 	@Autowired
    private MovimentacaoEstoqueService movimentacaoEstoqueService;
+	@Autowired
 	private EstoqueMovimentacaoService   estoqueMovimentacaoService;
 	@PostMapping
 	@Override
 	public ResponseEntity<MovimentacaoResponse> movimentar( @Valid @RequestBody  MovimentacaoInput estoqueMovimentacaoInput) {
 	
-		return ResponseEntity.status(HttpStatus.CREATED).body(movimentacaoService.registrarMovimentacao(estoqueMovimentacaoInput));
+		return ResponseEntity.status(HttpStatus.CREATED).body(estoqueMovimentacaoService.registroMovimentacao(estoqueMovimentacaoInput));
 	}
 	
 	

@@ -129,7 +129,7 @@ public class ProdutoVariacao implements Serializable {
 
 			this.qtdeEstoque = quantidade.divide(multiploBD, RoundingMode.FLOOR).intValue();
 		}else {
-	
+	  System.out.println("passou aqui ");
 			this.qtdeEstoque =( this.qtdeEstoque* qtdeporPacote.intValue()+qtdeEstoque) /this.qtdeporPacote.intValue();
 		}
 		if (  this.produto.getEstoque().getQuantidade().intValue() < qtdeporPacote.intValue()) {
