@@ -34,7 +34,7 @@ public class EstoqueMovimentacaoService {
 	@Autowired
 	private ProdutoRepository produtoRepository;
 
-	//@Transactional
+	@Transactional
 	public MovimentacaoResponse registroMovimentacao(MovimentacaoInput movimentacaoInput) {
 
 		Produto produto = buscarProduto(movimentacaoInput.idProduto());
@@ -42,8 +42,8 @@ public class EstoqueMovimentacaoService {
 		MovimentacaoEstoque movimentacaoEstoque = movimentacaoEstoqueMapper.converter(movimentacaoInput,
 				MovimentacaoEstoque::new);
 		this.verificarMovimentacao(movimentacaoEstoque, produto, movimentacaoInput);
-		//MovimentacaoEstoque movimetacaoSalva = movimentoEstoqueRepository.save(movimentacaoEstoque);
-		return movimentacaoEstoqueMapper.converter(movimentacaoEstoque, MovimentacaoResponse::new);
+		MovimentacaoEstoque movimetacaoSalva = movimentoEstoqueRepository.save(movimentacaoEstoque);
+		return movimentacaoEstoqueMapper.converter(movimetacaoSalva, MovimentacaoResponse::new);
 	}
 
 	private Produto buscarProduto(Long produtoId) {
@@ -102,24 +102,42 @@ public class EstoqueMovimentacaoService {
 			atualizarQuantidadeVariacao(variacao, itemIp.qtde(), movimentacaoEstoque.getTipoMovimentacao());
 		    ItemMovimentacao item =criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, qteAnterior, 
 		    		movimentacaoInput.tipoMovimentacao(), movimentacaoInput.qtdeProduto());
+		    System.out.println("Produto: " + variacao.getProduto().getProdutoNome() +
+	                   ", EAN: " + variacao.getCodigoEan13() +
+	                   ", qtdeMovimentada: " + movimentacaoInput.qtdeProduto() +
+	                   ", qtdeporVariacao: " + variacao.getQtdeEstoque());
 		    movimentacaoEstoque.getItens().add(item);
 		});
 		var item = new ItemMovimentacao();
 		item.setMovimentacao(movimentacaoEstoque);
 		item.setQuantidade(movimentacaoInput.qtdeProduto());
 		item.setSaldoanterior(qteAnterior);
-		item.setProdutoVariacao(atualizarQuantidadeVariacao(produto, movimentacaoInput.qtdeProduto(), movimentacaoEstoque.getTipoMovimentacao()));
-		movimentacaoEstoque.getItens().add(item);
+		item.setProdutoVariacao(atualizarQuantidadeUnidadeVariacao(produto, 
+				movimentacaoInput.qtdeProduto(), movimentacaoEstoque.getTipoMovimentacao()));
 		
+		System.out.println("Produto unitario: " +item.getProdutoVariacao() .getProduto().getProdutoNome() +
+                ", EAN: " + item.getProdutoVariacao().getCodigoEan13() +
+                ", qtdeMovimentada: " + movimentacaoInput.qtdeProduto() +
+                ", qtdeporVariacao: " + item.getProdutoVariacao().getQtdeEstoque());
+		movimentacaoEstoque.getItens().add(item);
+	
 	}
 
-	private ProdutoVariacao atualizarQuantidadeVariacao(Produto produto, BigDecimal qtde, TipoMovimentacao tipoMovimentacao) {
-               for (var variacao : produto.getVariacoes()) {
+	private ProdutoVariacao atualizarQuantidadeUnidadeVariacao(Produto produto, BigDecimal qtde, TipoMovimentacao tipoMovimentacao) {
+		 System.out.println("variacao unitaria "+ qtde);
+		
+		for (var variacao : produto.getVariacoes()) {
+            	   
 		        if(  variacao.getQtdeporPacote().compareTo(BigDecimal.ONE)==0) {
-		        	System.out.println("variacao unitaria");
+		        	if(variacao.getQtdeEstoque()==0) {
+		        		variacao.setQtdeEstoque(variacao.getQtdeEstoque().intValue()+qtde.intValue());
+		        	}
 		        	variacao.setQtdeEstoque(variacao.getQtdeEstoque().intValue()+qtde.intValue());
 		        }
-		        System.out.println("variacao "+ variacao.getQtdeEstoque());
+	        else {
+	        	variacao.setQtdeEstoque(variacao.getQtdeEstoque().intValue()+variacao.getProduto().getEstoque().getQuantidade().intValue() +qtde.intValue());
+		        }
+		        System.out.println("variacao unitaria "+ variacao.getQtdeEstoque());
 		        return variacao;
 			}
          return null;
@@ -153,6 +171,7 @@ public class EstoqueMovimentacaoService {
 		if (tipoMovimentacao == TipoMovimentacao.Entrada) {
 
 			variacao.setQtdeEstoque(qtde.intValue());
+			
 			System.out.println(variacao.getQtdeEstoque() +"variacao atualizada");
 
 		} else {
