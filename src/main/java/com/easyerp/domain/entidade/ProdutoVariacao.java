@@ -82,7 +82,7 @@ public class ProdutoVariacao implements Serializable {
 	private Set<Componente> componentes = new HashSet<>();
 
 	public void setQtdeEstoque(Integer qtdeEstoque) {
-		this.qtdeEstoque =calcularEstoque(qtdeEstoque);
+		this.qtdeEstoque =qtdeEstoque;
 	}
 
 	public ProdutoVariacao(VariacaoCadastroInput variacaoCadastroInput) {

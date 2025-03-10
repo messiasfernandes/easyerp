@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import com.easyerp.domain.repository.ProdutoVariacaoRepository;
 
 @SpringBootTest
 class EasyErpApplicationTests {
-
-	
+@Autowired
+	ProdutoVariacaoRepository produtoVariacaoRepository;
 	void contextLoads() {
 		String[] cores = {"azul", "preto", "vermelho"};
         String[] tamanhos = {"pequeno", "medio", "gigante", "extra grande"};
@@ -27,7 +30,7 @@ class EasyErpApplicationTests {
             System.out.println(combinacao);
         }
     }
-	@Test
+	
   void somar() {
 		int saldoatual=30;
 		int qtde=90;
@@ -36,5 +39,12 @@ class EasyErpApplicationTests {
 		estoque= (saldoatual+qtde)/multiplicador;
 		System.out.println("estoque : "+estoque);
 	  
+  }
+  @Test
+  void buscar(){
+	//  var produtov = produtoVariacaoRepository.buscaqtePacote(3l);
+	  
+	// System.out.println("Produto :" + produtov.getProduto().getProdutoNome());
+	//  System.out.println(  "Ean 13 :" + produtov.getCodigoEan13());
   }
 }
