@@ -9,12 +9,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.aspectj.weaver.patterns.ThisOrTargetAnnotationPointcut;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import com.easyerp.domain.enumerados.TipoProduto;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.model.input.VariacaoCadastroInput;
 import com.easyerp.utils.CodigoBarraEAN;
