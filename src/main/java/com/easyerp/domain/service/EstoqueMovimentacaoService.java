@@ -95,7 +95,7 @@ public class EstoqueMovimentacaoService {
 		estoque.setQuantidade(estoque.getQuantidade().add(totalMovimentado));
 		
 		movimentacaoInput.itens().forEach(itemIp -> {
-System.out.println("processa item ");
+
 			var variacao = atualizaQtdeVariacao(produto, itemIp.qtde(), itemIp.variacoes().id(), movimentacaoEstoque.getTipoMovimentacao());
 			ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, itemIp.qtde(),
 					movimentacaoInput.tipoMovimentacao(), totalMovimentado);
