@@ -123,31 +123,30 @@ public class EstoqueMovimentacaoService {
 
 			var variacao = atualizaQtdeVariacao(produto, itemIp.qtde(), itemIp.variacoes().id(),
 					movimentacaoEstoque.getTipoMovimentacao());
-			
-				ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, itemIp.qtde(),
-						movimentacaoInput.tipoMovimentacao(), totalMovimentado);
 
-				movimentacaoEstoque.getItens().add(item);
-				
-	
-			//	AtualizarUnidadeKit(movimentacaoEstoque, qteAnterior, movimentacaoInput, itemIp.qtde(), produto,
-						//	totalMovimentado);
-	//		}
-			
-	
+			ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, itemIp.qtde(),
+					movimentacaoInput.tipoMovimentacao(), totalMovimentado);
+
+			movimentacaoEstoque.getItens().add(item);
+
+			// AtualizarUnidadeKit(movimentacaoEstoque, qteAnterior, movimentacaoInput,
+			// itemIp.qtde(), produto,
+			// totalMovimentado);
+			// }
+
 		}
 
 		);
- 
-for (var variacao : produto.getVariacoes()) {
-		if (variacao.getQtdeporPacote().compareTo(BigDecimal.ONE) == 0) {
+
+		for (var variacao : produto.getVariacoes()) {
+			if (variacao.getQtdeporPacote().compareTo(BigDecimal.ONE) == 0) {
 				variacao.setQtdeEstoque(variacao.getQtdeEstoque() + totalMovimentado.intValue());
-			ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao,
-			totalMovimentado, movimentacaoInput.tipoMovimentacao(), totalMovimentado);
+				ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao,
+						totalMovimentado, movimentacaoInput.tipoMovimentacao(), totalMovimentado);
 //
-			movimentacaoEstoque.getItens().add(item);
-	}
-		
+				movimentacaoEstoque.getItens().add(item);
+			}
+
 		}
 		estoque.setDataAlteracao(LocalDateTime.now());
 		produto.setEstoque(estoque);
@@ -183,27 +182,27 @@ for (var variacao : produto.getVariacoes()) {
 	}
 
 	private void AtualizarUnidadeKit(MovimentacaoEstoque movimentacaoEstoque, BigDecimal qteAnterior,
-	        MovimentacaoInput movimentacaoInput, BigDecimal qtde, Produto produto, BigDecimal totalMovimentado) {
+			MovimentacaoInput movimentacaoInput, BigDecimal qtde, Produto produto, BigDecimal totalMovimentado) {
 
-	    for (var variacao : produto.getVariacoes()) {
-	        
-	        // Se qtde == 0 e pacote == 1
-	        if (qtde.compareTo(BigDecimal.ZERO) == 0 && variacao.getQtdeporPacote().compareTo(BigDecimal.ONE) == 0) {
-	            variacao.setQtdeEstoque(variacao.getQtdeEstoque() + totalMovimentado.intValue());
-	            System.out.println("Movimentação atualizada com 0: " + variacao.getQtdeEstoque());
-	        } 
-	        // Se qtde > 0 e pacote == 1
-	        else if (qtde.compareTo(BigDecimal.ZERO) > 0 && variacao.getQtdeporPacote().compareTo(BigDecimal.ONE) == 0) {
-	            variacao.setQtdeEstoque(variacao.getQtdeEstoque() + qtde.intValue());
-	            System.out.println("Movimentação atualizada: " + variacao.getQtdeEstoque());
-	        }
+		for (var variacao : produto.getVariacoes()) {
 
-	        // Criar item da movimentação
-	        ItemMovimentacao item = criarItemMovimentacao(
-	            movimentacaoEstoque, qteAnterior, variacao, qtde,
-	            movimentacaoInput.tipoMovimentacao(), totalMovimentado);
-	        movimentacaoEstoque.getItens().add(item);
-	    }
+			// Se qtde == 0 e pacote == 1
+			if (qtde.compareTo(BigDecimal.ZERO) == 0 && variacao.getQtdeporPacote().compareTo(BigDecimal.ONE) == 0) {
+				variacao.setQtdeEstoque(variacao.getQtdeEstoque() + totalMovimentado.intValue());
+				System.out.println("Movimentação atualizada com 0: " + variacao.getQtdeEstoque());
+			}
+			// Se qtde > 0 e pacote == 1
+			else if (qtde.compareTo(BigDecimal.ZERO) > 0
+					&& variacao.getQtdeporPacote().compareTo(BigDecimal.ONE) == 0) {
+				variacao.setQtdeEstoque(variacao.getQtdeEstoque() + qtde.intValue());
+				System.out.println("Movimentação atualizada: " + variacao.getQtdeEstoque());
+			}
+
+			// Criar item da movimentação
+			ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao, qtde,
+					movimentacaoInput.tipoMovimentacao(), totalMovimentado);
+			movimentacaoEstoque.getItens().add(item);
+		}
 	}
 
 	private ProdutoVariacao atualizaQtdeVariacao(Produto produto, BigDecimal qtde, Long id, TipoMovimentacao tipo) {
@@ -266,5 +265,12 @@ for (var variacao : produto.getVariacoes()) {
 		item.setMovimentacao(movimentacaoEstoque);
 
 		return item;
+	}
+
+	private void atualizarVariacao(Produto produto, BigDecimal qtde, Long id, TipoMovimentacao tipo) {
+		var varicacaoEncontrada = buscarVariacao(produto, id);
+		if (tipo.equals(TipoMovimentacao.Entrada)) {
+			
+		}
 	}
 }
