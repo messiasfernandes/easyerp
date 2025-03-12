@@ -140,6 +140,8 @@ public class EstoqueMovimentacaoService {
 
 		for (var variacao : produto.getVariacoes()) {
 			if (variacao.getQtdeporPacote().compareTo(BigDecimal.ONE) == 0) {
+				
+				
 				variacao.setQtdeEstoque(variacao.getQtdeEstoque() + totalMovimentado.intValue());
 				ItemMovimentacao item = criarItemMovimentacao(movimentacaoEstoque, qteAnterior, variacao,
 						totalMovimentado, movimentacaoInput.tipoMovimentacao(), totalMovimentado);

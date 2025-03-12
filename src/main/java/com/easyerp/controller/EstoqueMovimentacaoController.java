@@ -32,7 +32,7 @@ public class EstoqueMovimentacaoController implements EstoqueMovimentacaoControl
 	@Override
 	public ResponseEntity<MovimentacaoResponse> movimentar( @Valid @RequestBody  MovimentacaoInput estoqueMovimentacaoInput) {
 	
-		return ResponseEntity.status(HttpStatus.CREATED).body(estoqueMovimentacaoService.registroMovimentacao(estoqueMovimentacaoInput));
+		return ResponseEntity.status(HttpStatus.CREATED).body(movimentacaoEstoqueService.registroMovimentacao(estoqueMovimentacaoInput));
 	}
 	
 	
