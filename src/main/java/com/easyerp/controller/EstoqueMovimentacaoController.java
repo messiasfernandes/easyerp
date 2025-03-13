@@ -22,12 +22,10 @@ import jakarta.validation.Valid;
 public class EstoqueMovimentacaoController implements EstoqueMovimentacaoControllerOpenApi {
 	
 
-	@Autowired
-   private MovimentacaoService movimentacaoService;
+
 	@Autowired
    private MovimentacaoEstoqueService movimentacaoEstoqueService;
-	@Autowired
-	private EstoqueMovimentacaoService   estoqueMovimentacaoService;
+
 	@PostMapping
 	@Override
 	public ResponseEntity<MovimentacaoResponse> movimentar( @Valid @RequestBody  MovimentacaoInput estoqueMovimentacaoInput) {

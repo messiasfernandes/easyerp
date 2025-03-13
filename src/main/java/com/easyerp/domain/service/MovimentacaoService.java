@@ -155,11 +155,11 @@ public class MovimentacaoService {
 
 		BigDecimal qteAnterior = estoque.getQuantidade();
 		System.out.println("saldo anterio" + qteAnterior);
-		if (movimentacaoInput.qtdeProduto().signum() != 0) {
-
-			estoque.setQuantidade(estoque.getQuantidade().add(movimentacaoInput.qtdeProduto()));
-
-		}
+//		if (movimentacaoInput.qtdeProduto().signum() != 0) {
+//
+//			estoque.setQuantidade(estoque.getQuantidade().add(movimentacaoInput.qtdeProduto()));
+//
+//		}
 
 		if (produto.getTipoProduto().equals(TipoProduto.Kit)) {
 			for (var varicao : produto.getVariacoes()) {
@@ -200,10 +200,10 @@ public class MovimentacaoService {
 			BigDecimal somaVariacoes = movimentacaoInput.itens().stream().map(varicao -> varicao.qtde())
 					.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-			if (somaVariacoes.compareTo(movimentacaoInput.qtdeProduto()) != 0) {
-				throw new NegocioException(
-						"A soma das quantidades das variações excede a quantidade total em estoque.");
-			}
+//			if (somaVariacoes.compareTo(movimentacaoInput.qtdeProduto()) != 0) {
+//				throw new NegocioException(
+//						"A soma das quantidades das variações excede a quantidade total em estoque.");
+//			}
 
 		}
 		produto.setEstoque(estoque);

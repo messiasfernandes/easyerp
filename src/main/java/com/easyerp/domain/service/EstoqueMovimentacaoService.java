@@ -269,10 +269,5 @@ public class EstoqueMovimentacaoService {
 		return item;
 	}
 
-	private void atualizarVariacao(Produto produto, BigDecimal qtde, Long id, TipoMovimentacao tipo) {
-		var varicacaoEncontrada = buscarVariacao(produto, id);
-		if (tipo.equals(TipoMovimentacao.Entrada)) {
-			
-		}
-	}
+
 }

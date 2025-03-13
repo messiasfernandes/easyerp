@@ -2,17 +2,13 @@ package com.easyerp.domain.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.easyerp.config.ModelMapper;
-import com.easyerp.domain.entidade.Estoque;
 import com.easyerp.domain.entidade.ItemMovimentacao;
 import com.easyerp.domain.entidade.MovimentacaoEstoque;
 import com.easyerp.domain.entidade.Produto;
