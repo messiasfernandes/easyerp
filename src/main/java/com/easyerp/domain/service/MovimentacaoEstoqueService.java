@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.easyerp.config.ModelMapper;
+import com.easyerp.domain.entidade.Estoque;
 import com.easyerp.domain.entidade.ItemMovimentacao;
 import com.easyerp.domain.entidade.MovimentacaoEstoque;
 import com.easyerp.domain.entidade.Produto;
@@ -64,6 +65,8 @@ public class MovimentacaoEstoqueService {
 
 	private void entradaEstoque(MovimentacaoEstoque movimentacaoEstoque, MovimentacaoInput movimentacaoInput,
 			Produto produto, BigDecimal estoquetotal) {
+		
+		
 		for (var itemInput : movimentacaoInput.itens()) {
 			ProdutoVariacao variacao = produtoVariacaoRepository.findById(itemInput.variacoes().id())
 					.orElseThrow(() -> new NegocioException("Variação não encontrada"));
@@ -79,7 +82,15 @@ public class MovimentacaoEstoqueService {
 		produtoRepository.save(produto);
 
 	}
-
+	private Estoque inicializarEstoque(Produto produto) {
+		Estoque estoque = new Estoque();
+		estoque.setQuantidade(BigDecimal.ZERO);
+		estoque.setDataAlteracao(LocalDateTime.now());
+		estoque.setDataCadastro(LocalDateTime.now());
+		estoque.setProduto(produto);
+		produto.setEstoque(estoque);
+		return estoque;
+	}
 	private BigDecimal calcularTotalMovimentado(Produto produto, MovimentacaoInput movimentacaoInput) {
 		BigDecimal total = movimentacaoInput.itens().stream().map(itemImp -> {
 			// Buscar a variação correta dentro do Set<ProdutoVariacao>
