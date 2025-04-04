@@ -30,6 +30,7 @@ public class ProdutoService {
 
 	@Transactional(rollbackOn = { Exception.class })
 	public ProdutoResponse salvar(ProdutoCadastroInput produtoCadastroInput) {
+		produtoCadastroInput.validar();
 		var produto = produtoMapper.converter(produtoCadastroInput, Produto::new);
 		
 		if (!produto.getVariacoes().isEmpty()) {
