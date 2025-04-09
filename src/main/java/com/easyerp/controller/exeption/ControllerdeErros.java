@@ -1,5 +1,6 @@
 package com.easyerp.controller.exeption;
 
+import java.io.FileNotFoundException;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
+import com.easyerp.domain.service.exeption.StorageException;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -107,8 +109,30 @@ public class ControllerdeErros {
 		;
         return ResponseEntity.status(status).body(problema);
     }
+	 @ExceptionHandler(IllegalArgumentException.class)
+	    public ResponseEntity<Problema> handleIllegalArgument(IllegalArgumentException ex) {
+	        Problema problema = criarProblema(HttpStatus.BAD_REQUEST, ex.getMessage());
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problema);
+	    }
 
+	    @ExceptionHandler(FileNotFoundException.class)
+	    public ResponseEntity<Problema> handleFileNotFound(FileNotFoundException ex) {
+	        Problema problema = criarProblema(HttpStatus.NOT_FOUND, ex.getMessage());
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problema);
+	    }
 
+	    @ExceptionHandler(StorageException.class)
+	    public ResponseEntity<Problema> handleStorage(StorageException ex) {
+	        Problema problema = criarProblema(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problema);
+	    }
+	  private Problema criarProblema(HttpStatus status, String mensagem) {
+	        return Problema.builder()
+	                .status(status.value())
+	                .dataHora(OffsetDateTime.now())
+	                .titulo(mensagem)
+	                .build();
+	    }
 //	@ExceptionHandler(HttpMessageNotReadableException.class)
 //    public ResponseEntity<Object> jsonErro (HttpMessageNotReadableException ex) {
 //		var status = HttpStatus.BAD_REQUEST;
