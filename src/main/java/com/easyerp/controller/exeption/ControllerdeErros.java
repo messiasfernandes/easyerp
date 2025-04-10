@@ -13,8 +13,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
 import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
 import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
 import com.easyerp.domain.service.exeption.NegocioException;
@@ -30,15 +32,15 @@ public class ControllerdeErros {
 	public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
 		var status = HttpStatus.BAD_REQUEST;
 
-		// Criar um mapa para capturar os erros detalhados
+		
 		Map<String, String> errors = new HashMap<>();
 		for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-			String fieldName = violation.getPropertyPath().toString(); // Nome do campo
-			String errorMessage = violation.getMessage();              // Mensagem de erro
+			String fieldName = violation.getPropertyPath().toString(); 
+			String errorMessage = violation.getMessage();              
 			errors.put(fieldName, errorMessage);
 		}
 
-		// Criar o objeto 'Problema' com detalhes dos campos violados
+	
 		var problema = Problema.builder()
 				.status(status.value())
 				.titulo("Erro de validação: um ou mais campos estão inválidos.")
@@ -102,7 +104,7 @@ public class ControllerdeErros {
 
 		return new ResponseEntity<>(problema, status);
 	}
-	@ExceptionHandler(NoResourceFoundException.class)
+	@ExceptionHandler({NoResourceFoundException.class})
     public ResponseEntity<Object> handleNotFound(NoResourceFoundException ex) {
 		var status = HttpStatus.NOT_FOUND;
 		var problema = Problema.builder().status(status.value()).titulo("url não encontrada ou com erro! Confira ar url e tente novamente").dataHora(OffsetDateTime.now())
@@ -110,8 +112,8 @@ public class ControllerdeErros {
 		;
         return ResponseEntity.status(status).body(problema);
     }
-	  @ExceptionHandler(ExtensaoArquivoInvalidaException.class)
-	    public ResponseEntity<Object> handleIllegalArgument(ExtensaoArquivoInvalidaException ex, WebRequest request) {
+	  @ExceptionHandler({ExtensaoArquivoInvalidaException.class})
+	    public ResponseEntity<Problema> handleIllegalArgument(ExtensaoArquivoInvalidaException ex, WebRequest request) {
 			var status = HttpStatus.BAD_REQUEST;
 	        Problema problema = Problema.builder()
 	            .status(status.value())
@@ -119,16 +121,16 @@ public class ControllerdeErros {
 	            .titulo(ex.getMessage())
 	            .build();
 	        System.out.println("Problema criado: " + problema);
-	        return new ResponseEntity<>(problema, status);
+	        return ResponseEntity.status(status).body(problema);
 	    }
 
-	    @ExceptionHandler(FileNotFoundException.class)
+	    @ExceptionHandler({FileNotFoundException.class})
 	    public ResponseEntity<Problema> handleFileNotFound(FileNotFoundException ex) {
 	        Problema problema = criarProblema(HttpStatus.NOT_FOUND, ex.getMessage());
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problema);
 	    }
 
-	    @ExceptionHandler(StorageException.class)
+	    @ExceptionHandler({StorageException.class})
 	    public ResponseEntity<Problema> handleStorage(StorageException ex) {
 	        Problema problema = criarProblema(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problema);
@@ -148,4 +150,23 @@ public class ControllerdeErros {
 //		;
 //        return ResponseEntity.status(status).body(problema);
 //    }
+	  
+	   @ExceptionHandler(ArquivoInvalidoException.class)
+	    public ResponseEntity<Problema> handleArquivoInvalidoException(ArquivoInvalidoException ex) {
+			var status = HttpStatus.PAYLOAD_TOO_LARGE;
+	        Problema problema = Problema.builder()
+	            .status(status.value())
+	            .dataHora(OffsetDateTime.now())
+	            .titulo(ex.getMessage())
+	            .build();
+	        return new ResponseEntity<>(problema, status);
+	    }
+	   
+//	   @ExceptionHandler(MaxUploadSizeExceededException.class)
+//	    public ResponseEntity<String> handleMaxSizeException(MaxUploadSizeExceededException ex) {
+//	        return ResponseEntity
+//	                .status(HttpStatus.PAYLOAD_TOO_LARGE) // 413
+//	                .body("Arquivo enviado excede o tamanho máximo permitido.");
+//	    }
+//}
 }

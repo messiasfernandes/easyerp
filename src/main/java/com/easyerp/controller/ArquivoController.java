@@ -22,10 +22,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.easyerp.controller.documentacao.ArquivosControllerOpenApi;
 import com.easyerp.domain.service.ServiceDisco;
 import com.easyerp.domain.service.StorageService;
+import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
+import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
 import com.easyerp.model.dto.ArquivoResponse;
 
 
 import jakarta.activation.FileTypeMap;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("v1/arquivos")
@@ -39,9 +42,9 @@ public class ArquivoController implements ArquivosControllerOpenApi {
     @Autowired
     private ServiceDisco serviceDisco;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+
     @Override
-    public ResponseEntity<List<ArquivoResponse>> upload(@RequestParam List<MultipartFile> arquivo) {
+    public ResponseEntity<List<ArquivoResponse>> upload( @Valid @RequestParam List<MultipartFile> arquivo) {
         logger.info("Recebendo upload de {} arquivos", arquivo.size());
         try {
             List<ArquivoResponse> arquivosSalvos = serviceStorage.salvar(arquivo);
@@ -82,5 +85,28 @@ public class ArquivoController implements ArquivosControllerOpenApi {
         logger.warn("Arquivo {} não encontrado para deleção", nomeArquivo);
         return ResponseEntity.notFound().build();
     }
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadImagem(@RequestParam MultipartFile arquivo) {
+       
+            validarArquivo(arquivo);
+            // Se chegou aqui, o arquivo é válido
+            return ResponseEntity.ok("Arquivo enviado com sucesso!");
+       
+        
+    }
+    private void validarArquivo(MultipartFile arquivo) {
+        if (arquivo.isEmpty()) {
+            throw new ArquivoInvalidoException("O arquivo está vazio.");
+        }
 
+        String contentType = arquivo.getContentType();
+        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+            throw new ArquivoInvalidoException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
+        }
+
+        long tamanhoMaximo = 5 * 1024 * 1024; // 5MB
+        if (arquivo.getSize() > tamanhoMaximo) {
+            throw new ArquivoInvalidoException("O arquivo excede o tamanho máximo permitido de 5MB.");
+        }
+    }
 }

@@ -1,17 +1,5 @@
 package com.easyerp.domain.service;
 
-import net.coobird.thumbnailator.Thumbnails;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
-import com.easyerp.domain.service.exeption.StorageException;
-import com.easyerp.model.dto.ArquivoResponse;
-
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,6 +9,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
+import com.easyerp.domain.service.exeption.StorageException;
+import com.easyerp.model.dto.ArquivoResponse;
+
+import net.coobird.thumbnailator.Thumbnails;
 
 @Service
 public class StorageService {
@@ -54,61 +55,34 @@ public class StorageService {
 		
 		System.out.println("criando pasata");
 		try {
-    //  if (!Files.exists(this.local)) {
-    //        logger.info("Diretório já existe: {}", local.toAbsolutePath());
-	//     } else {
+   
 	           Files.createDirectories(this.local);
 	           logger.info("Diretório de armazenamento criado em: {}", local.toAbsolutePath());
-	  // }
+	  
 	    } catch (IOException e) {
 	        logger.error("Erro ao criar diretório de armazenamento: {}", local.toAbsolutePath(), e);
 	        throw new RuntimeException("Erro ao criar diretório: " + e.getMessage());
 	    }
 	}
 
-	public List<ArquivoResponse> salvar(List<MultipartFile> files) {
-		
-		System.out.println("pasou aqui");
+	public List<ArquivoResponse> salvar(List<MultipartFile> files) throws IOException {
+
+        long tamanhoMaximo = 5 * 1024 * 1024; // 5MB
+	
 		List<ArquivoResponse> arquivos = new ArrayList<>();
+		try {
+			
+		} catch (MaxUploadSizeExceededException e) {
+			throw new ArquivoInvalidoException("O arquivo excede o tamanho máximo permitido de 5MB.");
+		}
 		for (MultipartFile file : files) {
-			try {
-				if (file.getSize() == 0) {
-	                logger.warn("Arquivo {} está vazio", file.getOriginalFilename());
-	                throw new IllegalArgumentException("Arquivo vazio: " + file.getOriginalFilename());
-	            }
-
-	            // Validar a extensão do arquivo
-	            String nomeArquivo = file.getOriginalFilename();
-	            if (nomeArquivo == null || 
-	                !(nomeArquivo.toLowerCase().endsWith(".png") || nomeArquivo.toLowerCase().endsWith(".jpg") || nomeArquivo.toLowerCase().endsWith(".jpeg"))) {
-	                logger.warn("Extensão de arquivo não permitida: {}. Apenas PNG e JPG são aceitos.", nomeArquivo);
-	                throw new ExtensaoArquivoInvalidaException("Extensão de arquivo não permitida: " + nomeArquivo + ". Apenas PNG e JPG são aceitos.");
-	            }
-
-	            // Validar o tipo de arquivo (contentType)
-	            String contentType = file.getContentType();
-	            if (contentType == null || 
-	                !(contentType.equalsIgnoreCase("image/png") || contentType.equalsIgnoreCase("image/jpeg") || contentType.equalsIgnoreCase("image/jpg"))) {
-	            	
-	            	//throw new RuntimeException("Extensão de arquivo inválida: " + nomeArquivo);
-	               logger.warn("Formato de arquivo não permitido: {}. Apenas PNG e JPG são aceitos.", contentType);
-	                throw new ExtensaoArquivoInvalidaException("Formato de arquivo : " + nomeArquivo + " possui uma extessão não permitido .Por favor envia apenas arquivo no formato PNG e JPG .");
-	            }
-	         //  init();
-				ArquivoResponse arquivo = criarArquivoDto(file);
-				System.out.println(arquivo.nomeArquivo()+"arquivo");
-				Path destino = local.resolve(file.getOriginalFilename());
-				System.out.println(destino.toFile()+"arquivo");
-				file.transferTo(new File(local.toAbsolutePath().toString(),
-						FileSystems.getDefault().getSeparator() + file.getOriginalFilename()));
-				//file.transferTo(destino.toFile());
-				gerarThumbnail(destino);
-				arquivos.add(arquivo);
-				logger.info("Arquivo {} salvo com sucesso", file.getOriginalFilename());
-			} catch (IOException e) {
-				logger.error("Erro ao salvar arquivo {}", file.getOriginalFilename(), e);
-				throw new StorageException("Erro ao salvar arquivo " + file.getOriginalFilename(), e);
+			if (file.isEmpty()) {
+			  //  logger.warn("Arquivo {} está vazio", file.getOriginalFilename());
+			    throw new ArquivoInvalidoException("O arquivo está vazio.");
 			}
+			 if (file.getSize() > tamanhoMaximo) {
+		            
+		        }
 		}
 		return arquivos;
 	
