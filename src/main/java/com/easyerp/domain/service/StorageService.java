@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
 import com.easyerp.domain.service.exeption.StorageException;
 import com.easyerp.model.dto.ArquivoResponse;
 
@@ -14,6 +15,7 @@ import com.easyerp.model.dto.ArquivoResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,25 +32,34 @@ public class StorageService {
 	private String raiz;
 	@Value("${storage.foto}")
 	private String localfoto;
-
+	@Value("${storage.foto}")
+	private String diretoriofoto;
 	public StorageService() {
      
     }
 
 	@jakarta.annotation.PostConstruct
 	public void init() {
-		   this.local = Paths.get(raiz, localfoto);
+		   System.out.println("INIT StorageService:");
+		    System.out.println("Raiz: " + raiz);
+		    System.out.println("Foto: " + localfoto);
+		  caminho();
+			System.out.println("pasou aqui"+ caminho());
+			System.out.println(caminho());	
+	
 		criarPasta();
 	}
 
 	private void criarPasta() {
+		
+		System.out.println("criando pasata");
 		try {
-	        if (Files.exists(this.local)) {
-	            logger.info("Diretório já existe: {}", local.toAbsolutePath());
-	        } else {
-	            Files.createDirectories(this.local);
-	            logger.info("Diretório de armazenamento criado em: {}", local.toAbsolutePath());
-	        }
+    //  if (!Files.exists(this.local)) {
+    //        logger.info("Diretório já existe: {}", local.toAbsolutePath());
+	//     } else {
+	           Files.createDirectories(this.local);
+	           logger.info("Diretório de armazenamento criado em: {}", local.toAbsolutePath());
+	  // }
 	    } catch (IOException e) {
 	        logger.error("Erro ao criar diretório de armazenamento: {}", local.toAbsolutePath(), e);
 	        throw new RuntimeException("Erro ao criar diretório: " + e.getMessage());
@@ -56,6 +67,8 @@ public class StorageService {
 	}
 
 	public List<ArquivoResponse> salvar(List<MultipartFile> files) {
+		
+		System.out.println("pasou aqui");
 		List<ArquivoResponse> arquivos = new ArrayList<>();
 		for (MultipartFile file : files) {
 			try {
@@ -69,20 +82,26 @@ public class StorageService {
 	            if (nomeArquivo == null || 
 	                !(nomeArquivo.toLowerCase().endsWith(".png") || nomeArquivo.toLowerCase().endsWith(".jpg") || nomeArquivo.toLowerCase().endsWith(".jpeg"))) {
 	                logger.warn("Extensão de arquivo não permitida: {}. Apenas PNG e JPG são aceitos.", nomeArquivo);
-	                throw new IllegalArgumentException("Extensão de arquivo não permitida: " + nomeArquivo + ". Apenas PNG e JPG são aceitos.");
+	                throw new ExtensaoArquivoInvalidaException("Extensão de arquivo não permitida: " + nomeArquivo + ". Apenas PNG e JPG são aceitos.");
 	            }
 
 	            // Validar o tipo de arquivo (contentType)
 	            String contentType = file.getContentType();
 	            if (contentType == null || 
 	                !(contentType.equalsIgnoreCase("image/png") || contentType.equalsIgnoreCase("image/jpeg") || contentType.equalsIgnoreCase("image/jpg"))) {
-	                logger.warn("Formato de arquivo não permitido: {}. Apenas PNG e JPG são aceitos.", contentType);
-	                throw new IllegalArgumentException("Formato de arquivo não permitido: " + nomeArquivo + ". Apenas PNG e JPG são aceitos.");
+	            	
+	            	//throw new RuntimeException("Extensão de arquivo inválida: " + nomeArquivo);
+	               logger.warn("Formato de arquivo não permitido: {}. Apenas PNG e JPG são aceitos.", contentType);
+	                throw new ExtensaoArquivoInvalidaException("Formato de arquivo : " + nomeArquivo + " possui uma extessão não permitido .Por favor envia apenas arquivo no formato PNG e JPG .");
 	            }
+	         //  init();
 				ArquivoResponse arquivo = criarArquivoDto(file);
 				System.out.println(arquivo.nomeArquivo()+"arquivo");
 				Path destino = local.resolve(file.getOriginalFilename());
-				file.transferTo(destino.toFile());
+				System.out.println(destino.toFile()+"arquivo");
+				file.transferTo(new File(local.toAbsolutePath().toString(),
+						FileSystems.getDefault().getSeparator() + file.getOriginalFilename()));
+				//file.transferTo(destino.toFile());
 				gerarThumbnail(destino);
 				arquivos.add(arquivo);
 				logger.info("Arquivo {} salvo com sucesso", file.getOriginalFilename());
@@ -92,6 +111,7 @@ public class StorageService {
 			}
 		}
 		return arquivos;
+	
 	}
 
 	private ArquivoResponse criarArquivoDto(MultipartFile file) {
@@ -129,6 +149,11 @@ public class StorageService {
 			logger.error("Erro ao deletar arquivo {}", filename, e);
 			  throw new StorageException("Erro ao deletar arquivo " + filename, e);
 		}
+	}
+	
+	private Path caminho() {
+
+		return local = Paths.get(raiz, localfoto, FileSystems.getDefault().getSeparator());
 	}
 
 }

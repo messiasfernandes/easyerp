@@ -16,6 +16,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
+import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
 import com.easyerp.domain.service.exeption.StorageException;
@@ -109,10 +110,16 @@ public class ControllerdeErros {
 		;
         return ResponseEntity.status(status).body(problema);
     }
-	 @ExceptionHandler(IllegalArgumentException.class)
-	    public ResponseEntity<Problema> handleIllegalArgument(IllegalArgumentException ex) {
-	        Problema problema = criarProblema(HttpStatus.BAD_REQUEST, ex.getMessage());
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problema);
+	  @ExceptionHandler(ExtensaoArquivoInvalidaException.class)
+	    public ResponseEntity<Object> handleIllegalArgument(ExtensaoArquivoInvalidaException ex, WebRequest request) {
+			var status = HttpStatus.BAD_REQUEST;
+	        Problema problema = Problema.builder()
+	            .status(status.value())
+	            .dataHora(OffsetDateTime.now())
+	            .titulo(ex.getMessage())
+	            .build();
+	        System.out.println("Problema criado: " + problema);
+	        return new ResponseEntity<>(problema, status);
 	    }
 
 	    @ExceptionHandler(FileNotFoundException.class)

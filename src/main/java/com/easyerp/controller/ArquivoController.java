@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.easyerp.controller.documentacao.ArquivosControllerOpenApi;
+import com.easyerp.domain.service.ServiceDisco;
 import com.easyerp.domain.service.StorageService;
 import com.easyerp.model.dto.ArquivoResponse;
 
@@ -34,6 +35,9 @@ public class ArquivoController implements ArquivosControllerOpenApi {
 
     @Autowired
     private StorageService serviceStorage;
+    
+    @Autowired
+    private ServiceDisco serviceDisco;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Override
