@@ -26,6 +26,7 @@ import com.easyerp.domain.service.exeption.StorageException;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import net.coobird.thumbnailator.tasks.UnsupportedFormatException;
 
 @RestControllerAdvice
 public class ControllerdeErros {
@@ -151,17 +152,17 @@ public class ControllerdeErros {
 //		;
 //        return ResponseEntity.status(status).body(problema);
 //    }
-	  
-	   @ExceptionHandler(ArquivoSizeExeption.class)
-	    public ResponseEntity<Problema> handleArquivoInvalidoException(ArquivoInvalidoException ex) {
-			var status = HttpStatus.PAYLOAD_TOO_LARGE;
-	        Problema problema = Problema.builder()
-	            .status(status.value())
-	            .dataHora(OffsetDateTime.now())
-	            .titulo(ex.getMessage())
-	            .build();
-	        return new ResponseEntity<>(problema, status);
-	    }
+//	  
+//	   @ExceptionHandler(UnsupportedFormatException .class)
+//	    public ResponseEntity<Problema> handleArquivoInvalidoException(UnsupportedFormatException  ex) {
+//			var status = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+//	        Problema problema = Problema.builder()
+//	            .status(status.value())
+//	            .dataHora(OffsetDateTime.now())
+//	            .titulo(ex.getMessage())
+//	            .build();
+//	        return new ResponseEntity<>(problema, status);
+//	    }
 	   
    @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Problema> handleMaxSizeException(MaxUploadSizeExceededException ex) {

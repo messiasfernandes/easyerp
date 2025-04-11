@@ -42,9 +42,9 @@ public class ArquivoController implements ArquivosControllerOpenApi {
     @Autowired
     private ServiceDisco serviceDisco;
 
-
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Override
-    public ResponseEntity<List<ArquivoResponse>> upload( @Valid @RequestParam List<MultipartFile> arquivo) {
+    public ResponseEntity<List<ArquivoResponse>> upload(  @RequestParam List<MultipartFile> arquivo) {
         logger.info("Recebendo upload de {} arquivos", arquivo.size());
         try {
             List<ArquivoResponse> arquivosSalvos = serviceStorage.salvar(arquivo);
@@ -85,7 +85,7 @@ public class ArquivoController implements ArquivosControllerOpenApi {
         logger.warn("Arquivo {} não encontrado para deleção", nomeArquivo);
         return ResponseEntity.notFound().build();
     }
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+
     public ResponseEntity<String> uploadImagem(@RequestParam MultipartFile arquivo) {
        
             validarArquivo(arquivo);

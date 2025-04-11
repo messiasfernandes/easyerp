@@ -9,4 +9,6 @@ public class ArquivoSizeExeption extends RuntimeException {
 	public ArquivoSizeExeption(String mensagem) {
         super(mensagem);
     }
+	
+	
 }

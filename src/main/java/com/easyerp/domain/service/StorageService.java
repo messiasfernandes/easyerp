@@ -24,6 +24,8 @@ import com.easyerp.domain.service.exeption.StorageException;
 import com.easyerp.model.dto.ArquivoResponse;
 
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.name.Rename;
+import net.coobird.thumbnailator.tasks.UnsupportedFormatException;
 
 @Service
 public class StorageService {
@@ -55,7 +57,6 @@ public class StorageService {
 
 	private void criarPasta() {
 		
-		System.out.println("criando pasata");
 		try {
    
 	           Files.createDirectories(this.local);
@@ -69,26 +70,19 @@ public class StorageService {
 
 	public List<ArquivoResponse> salvar(List<MultipartFile> files) throws IOException {
 
-        long tamanhoMaximo = 5 * 1024 * 1024; // 5MB
+       
 	
 		List<ArquivoResponse> arquivos = new ArrayList<>();
-		try {
-			
-		} catch (MaxUploadSizeExceededException e) {
-			throw new ArquivoSizeExeption("O arquivo excede o tamanho máximo permitido de 5MB.");
-		}
-		for (MultipartFile file : files) {
-			if (file.isEmpty()) {
-			  //  logger.warn("Arquivo {} está vazio", file.getOriginalFilename());
-			    throw new ArquivoInvalidoException("O arquivo está vazio.");
-			}  String contentType = file.getContentType();
-	        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-	            throw new ExtensaoArquivoInvalidaException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
-	        }
 
-			  if (file.getSize() > tamanhoMaximo) {
-		            throw new ArquivoSizeExeption("O arquivo excede o tamanho máximo permitido de 5MB.");
-		        }
+		for (MultipartFile file : files) {
+			
+				validarArquivo(file);
+				ArquivoResponse arquivo = criarArquivoDto(file);
+				arquivos.add(arquivo);
+				file.transferTo(new File(local.toAbsolutePath().toString(),
+						FileSystems.getDefault().getSeparator() + file.getOriginalFilename()));
+		
+						gerarThumbnail(file);
 		    
 		}
 		return arquivos;
@@ -102,9 +96,14 @@ public class StorageService {
 		return arquivo;
 	}
 
-	private void gerarThumbnail(Path arquivo) throws IOException {
-		Thumbnails.of(arquivo.toString()).size(400, 280).toFiles(net.coobird.thumbnailator.name.Rename.NO_CHANGE);
-		logger.debug("Thumbnail gerado para {}", arquivo.getFileName());
+	private void gerarThumbnail(MultipartFile file) throws IOException {
+	
+	
+			Thumbnails.of(this.local.resolve(file.getOriginalFilename()).toString()).size(400, 280)
+			.toFiles(Rename.NO_CHANGE);
+			logger.debug("Thumbnail gerado para {}", file.getOriginalFilename());
+	
+	
 	}
 
 	public byte[] carregarFoto(File foto) throws IOException {
@@ -136,5 +135,32 @@ public class StorageService {
 
 		return local = Paths.get(raiz, localfoto, FileSystems.getDefault().getSeparator());
 	}
+   private void validarArquivo(MultipartFile file) {
+	   long tamanhoMaximo = 5 * 1024 * 1024; // 5MB
+	   if (file.isEmpty()) {
+			
+			    throw new ArquivoInvalidoException("O arquivo está vazio.");
+			}  String contentType = file.getContentType();
+	        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+	            throw new ExtensaoArquivoInvalidaException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
+	        }
+	        String contentType1 = file.getContentType();
+	        if (contentType1 == null || 
+	           (!contentType1.equals("image/jpeg") && !contentType1.equals("image/png"))) {
+	            throw new ExtensaoArquivoInvalidaException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
+	        }
 
+	        // Valida extensão do nome do arquivo também
+//	        String nomeArquivo = file.getOriginalFilename();
+//	        if (nomeArquivo == null || 
+//	           (!nomeArquivo.toLowerCase().endsWith(".jpg") && 
+//	            !nomeArquivo.toLowerCase().endsWith(".jpeg") && 
+//	            !nomeArquivo.toLowerCase().endsWith(".png"))) {
+//	            throw new ExtensaoArquivoInvalidaException("Extensão de arquivo inválida. Apenas JPG e PNG são permitidos.");
+//	        }
+
+			
+   }
+   
+   
 }
