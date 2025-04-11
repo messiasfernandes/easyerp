@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
+import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
+import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
 import com.easyerp.domain.service.exeption.StorageException;
 import com.easyerp.model.dto.ArquivoResponse;
 
@@ -73,16 +75,21 @@ public class StorageService {
 		try {
 			
 		} catch (MaxUploadSizeExceededException e) {
-			throw new ArquivoInvalidoException("O arquivo excede o tamanho máximo permitido de 5MB.");
+			throw new ArquivoSizeExeption("O arquivo excede o tamanho máximo permitido de 5MB.");
 		}
 		for (MultipartFile file : files) {
 			if (file.isEmpty()) {
 			  //  logger.warn("Arquivo {} está vazio", file.getOriginalFilename());
 			    throw new ArquivoInvalidoException("O arquivo está vazio.");
-			}
-			 if (file.getSize() > tamanhoMaximo) {
-		            
+			}  String contentType = file.getContentType();
+	        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+	            throw new ExtensaoArquivoInvalidaException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
+	        }
+
+			  if (file.getSize() > tamanhoMaximo) {
+		            throw new ArquivoSizeExeption("O arquivo excede o tamanho máximo permitido de 5MB.");
 		        }
+		    
 		}
 		return arquivos;
 	

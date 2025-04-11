@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
+import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
 import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
 import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
 import com.easyerp.domain.service.exeption.NegocioException;
@@ -112,9 +113,9 @@ public class ControllerdeErros {
 		;
         return ResponseEntity.status(status).body(problema);
     }
-	  @ExceptionHandler({ExtensaoArquivoInvalidaException.class})
-	    public ResponseEntity<Problema> handleIllegalArgument(ExtensaoArquivoInvalidaException ex, WebRequest request) {
-			var status = HttpStatus.BAD_REQUEST;
+	  @ExceptionHandler({ArquivoInvalidoException.class})
+	    public ResponseEntity<Problema> handleIllegalArgument(ArquivoInvalidoException ex, WebRequest request) {
+			var status = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
 	        Problema problema = Problema.builder()
 	            .status(status.value())
 	            .dataHora(OffsetDateTime.now())
@@ -151,7 +152,7 @@ public class ControllerdeErros {
 //        return ResponseEntity.status(status).body(problema);
 //    }
 	  
-	   @ExceptionHandler(ArquivoInvalidoException.class)
+	   @ExceptionHandler(ArquivoSizeExeption.class)
 	    public ResponseEntity<Problema> handleArquivoInvalidoException(ArquivoInvalidoException ex) {
 			var status = HttpStatus.PAYLOAD_TOO_LARGE;
 	        Problema problema = Problema.builder()
@@ -162,11 +163,14 @@ public class ControllerdeErros {
 	        return new ResponseEntity<>(problema, status);
 	    }
 	   
-//	   @ExceptionHandler(MaxUploadSizeExceededException.class)
-//	    public ResponseEntity<String> handleMaxSizeException(MaxUploadSizeExceededException ex) {
-//	        return ResponseEntity
-//	                .status(HttpStatus.PAYLOAD_TOO_LARGE) // 413
-//	                .body("Arquivo enviado excede o tamanho máximo permitido.");
-//	    }
-//}
+   @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Problema> handleMaxSizeException(MaxUploadSizeExceededException ex) {
+	   var status = HttpStatus.PAYLOAD_TOO_LARGE;
+       Problema problema = Problema.builder()
+           .status(status.value())
+           .dataHora(OffsetDateTime.now())
+           .titulo("O arquivo enviado excede o tamanho máximo permitido")
+           .build();
+       return new ResponseEntity<>(problema, status);
+}
 }
