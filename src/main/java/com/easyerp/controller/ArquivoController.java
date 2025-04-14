@@ -23,12 +23,9 @@ import com.easyerp.controller.documentacao.ArquivosControllerOpenApi;
 import com.easyerp.domain.service.ServiceDisco;
 import com.easyerp.domain.service.StorageService;
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
-import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
 import com.easyerp.model.dto.ArquivoResponse;
 
-
 import jakarta.activation.FileTypeMap;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("v1/arquivos")

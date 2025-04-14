@@ -1,8 +1,6 @@
 package com.easyerp;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,11 +43,8 @@ class EasyErpApplicationTests {
   }
   @Test
   void buscar(){
-	  Double valor=10.0/3;
-//	 BigDecimal valor2 =new BigDecimal(10.0).divide( new BigDecimal(3)) ;
-	  BigDecimal valorBigDecimal = (new BigDecimal(3));
-	  System.out.println(valor+ "double");
-	//System.out.println(valor2 + "Big");
+
+
 	  
   }
 }

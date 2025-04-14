@@ -17,7 +17,6 @@ import com.easyerp.domain.enumerados.TipoMovimentacao;
 import com.easyerp.domain.enumerados.TipoProduto;
 import com.easyerp.domain.repository.MovimentoEstoqueRepository;
 import com.easyerp.domain.repository.ProdutoRepository;
-import com.easyerp.domain.repository.ProdutoVariacaoRepository;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
 import com.easyerp.model.dto.MovimentacaoResponse;
@@ -34,8 +33,7 @@ public class EstoqueMovimentacaoService {
 	private ModelMapper movimentacaoEstoqueMapper;
 	@Autowired
 	private ProdutoRepository produtoRepository;
-	@Autowired
-	private ProdutoVariacaoRepository produtoVariacaoRepository;
+	
 
 	@Transactional
 	public MovimentacaoResponse registroMovimentacao(MovimentacaoInput movimentacaoInput) {

@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.easyerp.controller.documentacao.EstoqueMovimentacaoControllerOpenApi;
-import com.easyerp.domain.service.EstoqueMovimentacaoService;
 import com.easyerp.domain.service.MovimentacaoEstoqueService;
-import com.easyerp.domain.service.MovimentacaoService;
 import com.easyerp.model.dto.MovimentacaoResponse;
 import com.easyerp.model.input.MovimentacaoInput;
 

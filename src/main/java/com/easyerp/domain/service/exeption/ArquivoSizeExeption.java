@@ -1,14 +1,20 @@
 package com.easyerp.domain.service.exeption;
 
-public class ArquivoSizeExeption extends RuntimeException {
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+
+public class ArquivoSizeExeption extends MaxUploadSizeExceededException {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	public ArquivoSizeExeption(String mensagem) {
-        super(mensagem);
-    }
+	public ArquivoSizeExeption(long maxUploadSize, Throwable ex) {
+		super(maxUploadSize, ex);
 	
+	}
+
+
+
+
+
 	
 }

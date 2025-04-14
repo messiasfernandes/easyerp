@@ -14,18 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
 import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
-import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
 import com.easyerp.domain.service.exeption.StorageException;
 import com.easyerp.model.dto.ArquivoResponse;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
-import net.coobird.thumbnailator.tasks.UnsupportedFormatException;
 
 @Service
 public class StorageService {
@@ -142,14 +139,15 @@ public class StorageService {
 		return local = Paths.get(raiz, localfoto, FileSystems.getDefault().getSeparator());
 	}
    private void validarArquivo(MultipartFile file) {
-
+	
 	   String contentType = file.getContentType();
 	   System.out.println("pasou aqui ");
        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-           throw new ArquivoInvalidoException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
+           throw new ArquivoInvalidoException("O arquivo enviado excede o tamanho máximo permitido");
        }
 			
    }
+
    
    
 }

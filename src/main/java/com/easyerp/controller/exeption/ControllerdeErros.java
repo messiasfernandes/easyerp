@@ -17,16 +17,13 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
-import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
 import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
-import com.easyerp.domain.service.exeption.ExtensaoArquivoInvalidaException;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
 import com.easyerp.domain.service.exeption.StorageException;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import net.coobird.thumbnailator.tasks.UnsupportedFormatException;
 
 @RestControllerAdvice
 public class ControllerdeErros {
@@ -170,7 +167,7 @@ public class ControllerdeErros {
        Problema problema = Problema.builder()
            .status(status.value())
            .dataHora(OffsetDateTime.now())
-           .titulo("O arquivo enviado excede o tamanho máximo permitido")
+           .titulo("O arquivo enviado excede o tamanho máximo permitido "+ ex.getMaxUploadSize())
            .build();
        return new ResponseEntity<>(problema, status);
 }

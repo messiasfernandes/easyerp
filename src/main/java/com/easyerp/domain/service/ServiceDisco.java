@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
+import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
 import com.easyerp.model.dto.ArquivoResponse;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -46,13 +47,12 @@ public class ServiceDisco {
 		List<ArquivoResponse> arquivos = new ArrayList<>();
 
 		for (MultipartFile file : files) {
-			ArquivoResponse  arquivo = new ArquivoResponse(file.getOriginalFilename(), "thumbnail." + file.getOriginalFilename(),
-					file.getContentType(), file.getSize());
+			ArquivoResponse  arquivo = criarArquivoDto(file);
 			
 
 	
 			validarArquivo(file);
-			try {
+			try { 
 
 				// arquivo.setUrl( );
 				/// arquivo.setUrl(arquivo.add(WebMvcLinkBuilder.linkTo(ArquivoControler.class).slash(arquivo.getNomeArquivo()).withSelfRel()).toString());
@@ -153,7 +153,10 @@ public class ServiceDisco {
 	}
 	
 	  private void validarArquivo(MultipartFile file) {
-
+		   long tamanhoMaximo = 5 * 1024 * 1024; // 5MB
+		    if (file.getSize() > tamanhoMaximo) {
+		        throw new ArquivoSizeExeption(  file.getSize() , new Throwable( " O arquivo excede o tamanho máximo permitido de 5MB."));
+		    }
 		   String contentType = file.getContentType();
 		   System.out.println("pasou aqui ");
 	       if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
@@ -171,7 +174,12 @@ public class ServiceDisco {
 	
 	
 	}
+		private ArquivoResponse criarArquivoDto(MultipartFile file) {
+			ArquivoResponse arquivo = new ArquivoResponse(file.getOriginalFilename(), "thumbnail." + file.getOriginalFilename(),
+					file.getContentType(), file.getSize());
 
+			return arquivo;
+		}
 }
 
 
