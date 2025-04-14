@@ -45,14 +45,8 @@ public class ArquivoController implements ArquivosControllerOpenApi {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Override
     public ResponseEntity<List<ArquivoResponse>> upload(  @RequestParam List<MultipartFile> arquivo) {
-        logger.info("Recebendo upload de {} arquivos", arquivo.size());
-        try {
-            List<ArquivoResponse> arquivosSalvos = serviceStorage.salvar(arquivo);
-            return ResponseEntity.status(HttpStatus.CREATED).body(arquivosSalvos);
-        } catch (Exception e) {
-            logger.error("Erro ao processar upload de arquivos", e);
-            return ResponseEntity.badRequest().build();
-        }
+       
+            return ResponseEntity.status(HttpStatus.CREATED).body(serviceDisco.salvar(arquivo));
     }
 
     @GetMapping("/{arquivo}")
@@ -82,10 +76,10 @@ public class ArquivoController implements ArquivosControllerOpenApi {
             logger.info("Arquivo {} deletado com sucesso", nomeArquivo);
             return ResponseEntity.noContent().build();
         }
-        logger.warn("Arquivo {} não encontrado para deleção", nomeArquivo);
+        ///logger.warn("Arquivo {} não encontrado para deleção", nomeArquivo);
         return ResponseEntity.notFound().build();
     }
-
+    
     public ResponseEntity<String> uploadImagem(@RequestParam MultipartFile arquivo) {
        
             validarArquivo(arquivo);
@@ -100,6 +94,7 @@ public class ArquivoController implements ArquivosControllerOpenApi {
         }
 
         String contentType = arquivo.getContentType();
+        System.out.println(contentType);
         if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
             throw new ArquivoInvalidoException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
         }

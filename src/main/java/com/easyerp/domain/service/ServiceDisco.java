@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
 import com.easyerp.model.dto.ArquivoResponse;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -28,27 +29,40 @@ public class ServiceDisco {
 	private String localfoto;
 	@Value("${storage.xml}")
 	private String arquivo_xml;
+	@jakarta.annotation.PostConstruct
+	public void init() {
+		   System.out.println("INIT StorageService:");
+		    System.out.println("Raiz: " + raiz);
+		    System.out.println("Foto: " + localfoto);
+		  caminho();
+			System.out.println("pasou aqui"+ caminho());
+			System.out.println(caminho());	
+	
+		criarPasta();
+	}
+
 
 	public List<ArquivoResponse> salvar(List<MultipartFile> files) {
-		List<ArquivoResponse> arquivcos = new ArrayList<>();
+		List<ArquivoResponse> arquivos = new ArrayList<>();
 
 		for (MultipartFile file : files) {
 			ArquivoResponse  arquivo = new ArquivoResponse(file.getOriginalFilename(), "thumbnail." + file.getOriginalFilename(),
 					file.getContentType(), file.getSize());
 			
 
-			caminho();
-			criarpasta();
+	
+			validarArquivo(file);
 			try {
 
 				// arquivo.setUrl( );
 				/// arquivo.setUrl(arquivo.add(WebMvcLinkBuilder.linkTo(ArquivoControler.class).slash(arquivo.getNomeArquivo()).withSelfRel()).toString());
 
-				arquivcos.add(arquivo);
+				arquivos.add(arquivo);
 				file.transferTo(new File(local.toAbsolutePath().toString(),
 						FileSystems.getDefault().getSeparator() + file.getOriginalFilename()));
-				Thumbnails.of(this.local.resolve(file.getOriginalFilename()).toString()).size(400, 280)
-						.toFiles(Rename.NO_CHANGE);
+				gerarThumbnail(file);
+			//	Thumbnails.of(this.local.resolve(file.getOriginalFilename()).toString()).size(400, 280)
+					///	.toFiles(Rename.NO_CHANGE);
 			} catch (IllegalStateException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -58,10 +72,10 @@ public class ServiceDisco {
 			}
 		}
 
-		return arquivcos;
+		return arquivos;
 	}
 
-	private void criarpasta() {
+	private void criarPasta() {
 		System.out.println("criou pasta");
 		try {
 
@@ -136,6 +150,26 @@ public class ServiceDisco {
 		} catch (IOException e) {
 			throw new RuntimeException("Error: " + e.getMessage());
 		}
+	}
+	
+	  private void validarArquivo(MultipartFile file) {
+
+		   String contentType = file.getContentType();
+		   System.out.println("pasou aqui ");
+	       if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+	           throw new ArquivoInvalidoException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
+	       }
+				
+	   }
+	  
+		private void gerarThumbnail(MultipartFile file) throws IOException {
+			
+			
+			Thumbnails.of(this.local.resolve(file.getOriginalFilename()).toString()).size(400, 280)
+			.toFiles(Rename.NO_CHANGE);
+			//logger.debug("Thumbnail gerado para {}", file.getOriginalFilename());
+	
+	
 	}
 
 }

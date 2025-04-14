@@ -69,22 +69,28 @@ public class StorageService {
 	}
 
 	public List<ArquivoResponse> salvar(List<MultipartFile> files) throws IOException {
-
-       
-	
 		List<ArquivoResponse> arquivos = new ArrayList<>();
 
-		for (MultipartFile file : files) {
+		try {
 			
-				validarArquivo(file);
-				ArquivoResponse arquivo = criarArquivoDto(file);
-				arquivos.add(arquivo);
-				file.transferTo(new File(local.toAbsolutePath().toString(),
-						FileSystems.getDefault().getSeparator() + file.getOriginalFilename()));
+			for (MultipartFile file : files) {
+				
+					validarArquivo(file);
+					ArquivoResponse arquivo = criarArquivoDto(file);
+					arquivos.add(arquivo);
+					file.transferTo(new File(local.toAbsolutePath().toString(),
+							FileSystems.getDefault().getSeparator() + file.getOriginalFilename()));
+			
+							gerarThumbnail(file);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
 		
-						gerarThumbnail(file);
-		    
+       
+		
 		}
+	
+		
 		return arquivos;
 	
 	}
@@ -127,7 +133,7 @@ public class StorageService {
 			return Files.deleteIfExists(file);
 		} catch (IOException e) {
 			logger.error("Erro ao deletar arquivo {}", filename, e);
-			  throw new StorageException("Erro ao deletar arquivo " + filename, e);
+			  throw new StorageException("Erro ao deletar arquivo " + filename, e.getCause());
 		}
 	}
 	
@@ -136,29 +142,12 @@ public class StorageService {
 		return local = Paths.get(raiz, localfoto, FileSystems.getDefault().getSeparator());
 	}
    private void validarArquivo(MultipartFile file) {
-	   long tamanhoMaximo = 5 * 1024 * 1024; // 5MB
-	   if (file.isEmpty()) {
-			
-			    throw new ArquivoInvalidoException("O arquivo está vazio.");
-			}  String contentType = file.getContentType();
-	        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-	            throw new ExtensaoArquivoInvalidaException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
-	        }
-	        String contentType1 = file.getContentType();
-	        if (contentType1 == null || 
-	           (!contentType1.equals("image/jpeg") && !contentType1.equals("image/png"))) {
-	            throw new ExtensaoArquivoInvalidaException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
-	        }
 
-	        // Valida extensão do nome do arquivo também
-//	        String nomeArquivo = file.getOriginalFilename();
-//	        if (nomeArquivo == null || 
-//	           (!nomeArquivo.toLowerCase().endsWith(".jpg") && 
-//	            !nomeArquivo.toLowerCase().endsWith(".jpeg") && 
-//	            !nomeArquivo.toLowerCase().endsWith(".png"))) {
-//	            throw new ExtensaoArquivoInvalidaException("Extensão de arquivo inválida. Apenas JPG e PNG são permitidos.");
-//	        }
-
+	   String contentType = file.getContentType();
+	   System.out.println("pasou aqui ");
+       if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+           throw new ArquivoInvalidoException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
+       }
 			
    }
    
