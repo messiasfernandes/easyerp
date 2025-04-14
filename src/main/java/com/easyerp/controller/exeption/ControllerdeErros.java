@@ -167,7 +167,7 @@ public class ControllerdeErros {
        Problema problema = Problema.builder()
            .status(status.value())
            .dataHora(OffsetDateTime.now())
-           .titulo("O arquivo enviado excede o tamanho máximo permitido "+ ex.getMaxUploadSize())
+           .titulo("O arquivo enviado excede o tamanho máximo permitido"+ ex.getMaxUploadSize())
            .build();
        return new ResponseEntity<>(problema, status);
 }
