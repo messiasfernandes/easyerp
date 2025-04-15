@@ -153,10 +153,8 @@ public class ServiceDisco {
 	}
 	
 	  private void validarArquivo(MultipartFile file) {
-		   long tamanhoMaximo = 5 * 1024 * 1024; // 5MB
-		    if (file.getSize() > tamanhoMaximo) {
-		        throw new ArquivoSizeExeption(  file.getSize() , new Throwable( " O arquivo excede o tamanho máximo permitido de 5MB."));
-		    }
+		  System.out.println("validar");
+		
 		   String contentType = file.getContentType();
 		   System.out.println("pasou aqui ");
 	       if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {

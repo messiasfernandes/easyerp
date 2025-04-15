@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
+import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
 import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
@@ -26,7 +28,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
-public class ControllerdeErros {
+public class ControllerdeErros  {
 	@ExceptionHandler({ ConstraintViolationException.class })
 	public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
 		var status = HttpStatus.BAD_REQUEST;
@@ -141,33 +143,15 @@ public class ControllerdeErros {
 	                .titulo(mensagem)
 	                .build();
 	    }
-//	@ExceptionHandler(HttpMessageNotReadableException.class)
-//    public ResponseEntity<Object> jsonErro (HttpMessageNotReadableException ex) {
-//		var status = HttpStatus.BAD_REQUEST;
-//		var problema = Problema.builder().status(status.value()).titulo("Houve um erro no preenchimento dos dados. Por favor, verifique se os dados estão corretos e tente novamente."+ ex.getMessage()).dataHora(OffsetDateTime.now())
-//				.build();
-//		;
-//        return ResponseEntity.status(status).body(problema);
-//    }
-//	  
-//	   @ExceptionHandler(UnsupportedFormatException .class)
-//	    public ResponseEntity<Problema> handleArquivoInvalidoException(UnsupportedFormatException  ex) {
-//			var status = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
-//	        Problema problema = Problema.builder()
-//	            .status(status.value())
-//	            .dataHora(OffsetDateTime.now())
-//	            .titulo(ex.getMessage())
-//	            .build();
-//	        return new ResponseEntity<>(problema, status);
-//	    }
+
 	   
    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<Problema> handleMaxSizeException(MaxUploadSizeExceededException ex) {
+    public ResponseEntity<Problema> handleMaxSizeException(MaxUploadSizeExceededException ex,WebRequest request) {
 	   var status = HttpStatus.PAYLOAD_TOO_LARGE;
        Problema problema = Problema.builder()
            .status(status.value())
            .dataHora(OffsetDateTime.now())
-           .titulo("O arquivo enviado excede o tamanho máximo permitido"+ ex.getMaxUploadSize())
+           .titulo("O arquivo enviado excede o tamanho máximo permitido")
            .build();
        return new ResponseEntity<>(problema, status);
 }
