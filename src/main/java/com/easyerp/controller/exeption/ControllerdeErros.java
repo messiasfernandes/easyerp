@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
+import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
 import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
@@ -143,13 +144,13 @@ public class ControllerdeErros  {
 	    }
 
 	   
-   @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<Problema> handleMaxSizeException(MaxUploadSizeExceededException ex,WebRequest request) {
+   @ExceptionHandler(ArquivoSizeExeption.class)
+    public ResponseEntity<Problema> handleMaxSizeException(ArquivoSizeExeption ex,WebRequest request) {
 	   var status = HttpStatus.PAYLOAD_TOO_LARGE;
        Problema problema = Problema.builder()
            .status(status.value())
            .dataHora(OffsetDateTime.now())
-           .titulo("O arquivo enviado excede o tamanho máximo permitido")
+           .titulo(ex.getMessage())
            .build();
        return new ResponseEntity<>(problema, status);
 }

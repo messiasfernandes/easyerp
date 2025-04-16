@@ -1,7 +1,6 @@
 package com.easyerp.domain.service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -18,28 +17,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
 import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
+import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
 import com.easyerp.domain.service.exeption.StorageException;
 import com.easyerp.model.dto.ArquivoResponse;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
-
 @Service
 public class StorageService {
-
-	private   Logger logger = LoggerFactory.getLogger(StorageService.class);
-	private  Path local;
+	private   Logger logger = LoggerFactory.getLogger(StorageService2.class);
+	private Path local;
 
 	@Value("${storage.disco}")
 	private String raiz;
 	@Value("${storage.foto}")
 	private String localfoto;
-	@Value("${storage.foto}")
-	private String diretoriofoto;
-	public StorageService() {
-     
-    }
-
+	@Value("${storage.xml}")
+	private String arquivo_xml;
 	@jakarta.annotation.PostConstruct
 	public void init() {
 		   System.out.println("INIT StorageService:");
@@ -52,102 +46,163 @@ public class StorageService {
 		criarPasta();
 	}
 
-	private void criarPasta() {
-		
-		try {
-   
-	           Files.createDirectories(this.local);
-	           logger.info("Diretório de armazenamento criado em: {}", local.toAbsolutePath());
-	  
-	    } catch (IOException e) {
-	        logger.error("Erro ao criar diretório de armazenamento: {}", local.toAbsolutePath(), e);
-	        throw new RuntimeException("Erro ao criar diretório: " + e.getMessage());
-	    }
-	}
 
-	public List<ArquivoResponse> salvar(List<MultipartFile> files) throws IOException {
+	public List<ArquivoResponse> salvar(List<MultipartFile> files) {
 		List<ArquivoResponse> arquivos = new ArrayList<>();
 
-		try {
+		for (MultipartFile file : files) {
+			ArquivoResponse  arquivo = criarArquivoDto(file);
 			
-			for (MultipartFile file : files) {
-				
-					validarArquivo(file);
-					ArquivoResponse arquivo = criarArquivoDto(file);
-					arquivos.add(arquivo);
-					file.transferTo(new File(local.toAbsolutePath().toString(),
-							FileSystems.getDefault().getSeparator() + file.getOriginalFilename()));
-			
-							gerarThumbnail(file);
+
+	
+			validarArquivo(file);
+			try { 
+
+				// arquivo.setUrl( );
+				/// arquivo.setUrl(arquivo.add(WebMvcLinkBuilder.linkTo(ArquivoControler.class).slash(arquivo.getNomeArquivo()).withSelfRel()).toString());
+
+				arquivos.add(arquivo);
+				file.transferTo(new File(local.toAbsolutePath().toString(),
+						FileSystems.getDefault().getSeparator() + file.getOriginalFilename()));
+				gerarThumbnail(file);
+		
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			// TODO: handle exception
-		
-       
-		
 		}
-	
-		
+
 		return arquivos;
-	
 	}
 
-	private ArquivoResponse criarArquivoDto(MultipartFile file) {
-		ArquivoResponse arquivo = new ArquivoResponse(file.getOriginalFilename(), "thumbnail." + file.getOriginalFilename(),
-				file.getContentType(), file.getSize());
+	private void criarPasta() {
+		System.out.println("criou pasta");
+		try {
 
-		return arquivo;
-	}
+			Files.createDirectories(this.local);
 
-	private void gerarThumbnail(MultipartFile file) throws IOException {
-	
-	
-			Thumbnails.of(this.local.resolve(file.getOriginalFilename()).toString()).size(400, 280)
-			.toFiles(Rename.NO_CHANGE);
-			logger.debug("Thumbnail gerado para {}", file.getOriginalFilename());
-	
-	
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+
 	}
 
 	public byte[] carregarFoto(File foto) throws IOException {
-		if (!foto.exists()) {
-			throw new FileNotFoundException("Arquivo não encontrado: " + foto.getPath());
+
+		try {
+			return Files.readAllBytes(foto.toPath());
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
 		}
+
 		return Files.readAllBytes(foto.toPath());
 	}
 
-	public File buscarfoto(String foto) throws FileNotFoundException {
-		File img = new File(local.toAbsolutePath().toString(), foto);
-		if (!img.exists()) {
-			throw new FileNotFoundException("Foto não encontrada: " + foto);
+	public List<byte[]> cacrregarImagem(List<File> fotos) throws IOException {
+
+		List<byte[]> files = new ArrayList<>();
+		for (int i = 0; i < fotos.size(); i++) {
+			byte[] data = new byte[100];
+			data = Files.readAllBytes(fotos.get(i).toPath());
+
+			files.add(data);
 		}
-		return img;
+		return files;
+
 	}
 
-	public boolean delete(String filename) {
-		try {
-			Path file = local.resolve(filename);
-			return Files.deleteIfExists(file);
-		} catch (IOException e) {
-			logger.error("Erro ao deletar arquivo {}", filename, e);
-			  throw new StorageException("Erro ao deletar arquivo " + filename, e.getCause());
-		}
+	public File buscarfoto(String foto) {
+
+		File img = transferirouBuscar(foto);
+
+		return img;
+
 	}
-	
+
+	public List<File> pesquisrfoto(List<String> fotos) {
+		List<File> aruqivos = new ArrayList<>();
+		for (String foto : fotos) {
+
+			aruqivos.add(transferirouBuscar(foto));
+
+		}
+		return aruqivos;
+
+	}
+
 	private Path caminho() {
 
 		return local = Paths.get(raiz, localfoto, FileSystems.getDefault().getSeparator());
 	}
-   private void validarArquivo(MultipartFile file) {
-	
-	   String contentType = file.getContentType();
-	   System.out.println("pasou aqui ");
-       if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-           throw new ArquivoInvalidoException("O arquivo enviado excede o tamanho máximo permitido");
-       }
-			
-   }
 
-   
-   
+	private File transferirouBuscar(String nomeArquivo) {
+
+		return new File(caminho().toAbsolutePath().toString(), FileSystems.getDefault().getSeparator() + nomeArquivo);
+	}
+
+	public boolean delete(String filename) {
+		try {
+			Path file = caminho().resolve(filename);
+			return Files.deleteIfExists(file);
+		} catch (IOException e) {
+			throw new RuntimeException("Error: " + e.getMessage());
+		}
+	}
+	
+	  private void validarArquivo(MultipartFile file) {
+		
+		  System.out.println("validar");
+		
+		   String contentType = file.getContentType();
+		   System.out.println("pasou aqui ");
+	       if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+	           throw new ArquivoInvalidoException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
+	       }
+	       
+		   long tamanhoMaximo = 1 * 1024 * 1024; // 5MB
+		    if (file.getSize() > tamanhoMaximo) {
+		        throw new ArquivoSizeExeption( " O arquivo excede o tamanho máximo permitido de 5MB.");
+		    }
+				
+	   }
+	  
+		private void gerarThumbnail(MultipartFile file) throws IOException {
+			
+			
+			Thumbnails.of(this.local.resolve(file.getOriginalFilename()).toString()).size(400, 280)
+			.toFiles(Rename.NO_CHANGE);
+	
+	
+	}
+		private ArquivoResponse criarArquivoDto(MultipartFile file) {
+			ArquivoResponse arquivo = new ArquivoResponse(file.getOriginalFilename(), "thumbnail." + file.getOriginalFilename(),
+					file.getContentType(), file.getSize());
+
+			return arquivo;
+		}
+		public void deletar(String filename) {
+			
+			
+
+            try {
+            	Path file = caminho().resolve(filename);
+                logger.info("Tentando excluir o arquivo: {}", file.toAbsolutePath());
+				boolean deletedo = Files.deleteIfExists(file);
+				if(!deletedo) {
+					throw new RegistroNaoEncontrado("Arquivo '" + filename + "' não encontrado.");
+					
+				}
+			} catch (Exception e) {
+				  throw new StorageException("Erro inesperado ao excluir o arquivo '" + filename + "'.", e); // Para 500
+			}
+			
+		}
 }
+
+

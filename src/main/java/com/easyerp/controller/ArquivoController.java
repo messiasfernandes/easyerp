@@ -21,9 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.easyerp.controller.documentacao.ArquivosControllerOpenApi;
-import com.easyerp.domain.service.ServiceDisco;
 import com.easyerp.domain.service.StorageService;
-import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
+import com.easyerp.domain.service.StorageService2;
 import com.easyerp.model.dto.ArquivoResponse;
 
 import jakarta.activation.FileTypeMap;
@@ -35,16 +34,16 @@ public class ArquivoController implements ArquivosControllerOpenApi {
 	private static final org.slf4j.Logger logger =  LoggerFactory.getLogger(ArquivoController.class);
 
     @Autowired
-    private StorageService serviceStorage;
+    private StorageService2 serviceStorage;
     
     @Autowired
-    private ServiceDisco serviceDisco;
+    private StorageService storageService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Override
     public ResponseEntity<List<ArquivoResponse>> upload(  @RequestParam List<MultipartFile> arquivo) {
        
-            return ResponseEntity.status(HttpStatus.CREATED).body(serviceDisco.salvar(arquivo));
+            return ResponseEntity.status(HttpStatus.CREATED).body(storageService.salvar(arquivo));
     }
 
     @GetMapping("/{arquivo}")
@@ -53,7 +52,7 @@ public class ArquivoController implements ArquivosControllerOpenApi {
         logger.info("Buscando arquivo: {}", arquivo);
         try {
             File img = serviceStorage.buscarfoto(arquivo);
-            byte[] conteudo = serviceStorage.carregarFoto(img);
+            byte[] conteudo = storageService.carregarFoto(img);
             return ResponseEntity.ok()
                     .contentType(MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(img)))
                     .body(conteudo);
@@ -69,37 +68,12 @@ public class ArquivoController implements ArquivosControllerOpenApi {
     @DeleteMapping("/{nomeArquivo}")
     public ResponseEntity<Void> deleteArquivo(@PathVariable String nomeArquivo) {
         logger.info("Tentando deletar arquivo: {}", nomeArquivo);
-        boolean deleted = serviceStorage.delete(nomeArquivo);
-        if (deleted) {
-            logger.info("Arquivo {} deletado com sucesso", nomeArquivo);
-            return ResponseEntity.noContent().build();
-        }
-        ///logger.warn("Arquivo {} não encontrado para deleção", nomeArquivo);
+    
+        
+        storageService.deletar(nomeArquivo);
+
         return ResponseEntity.notFound().build();
     }
     
-    public ResponseEntity<String> uploadImagem(@RequestParam MultipartFile arquivo) {
-       
-            validarArquivo(arquivo);
-            // Se chegou aqui, o arquivo é válido
-            return ResponseEntity.ok("Arquivo enviado com sucesso!");
-       
-        
-    }
-    private void validarArquivo(MultipartFile arquivo) {
-        if (arquivo.isEmpty()) {
-            throw new ArquivoInvalidoException("O arquivo está vazio.");
-        }
-
-        String contentType = arquivo.getContentType();
-        System.out.println(contentType);
-        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-            throw new ArquivoInvalidoException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
-        }
-
-        long tamanhoMaximo = 5 * 1024 * 1024; // 5MB
-        if (arquivo.getSize() > tamanhoMaximo) {
-            throw new ArquivoInvalidoException("O arquivo excede o tamanho máximo permitido de 5MB.");
-        }
-    }
+ 
 }

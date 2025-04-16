@@ -11,6 +11,7 @@ public record VariacaoCadastroInput(
 		String imagemProduto,
 		BigDecimal qtdeporPacote ,
 		BigDecimal custoAdicional,
+		BigDecimal desconto ,
 		UnidadeMedidaInput unidadeInput,
 		Set<AtributoCadastroInput>atributos,
 		Set<ComponenteCadastroInput>componentes
