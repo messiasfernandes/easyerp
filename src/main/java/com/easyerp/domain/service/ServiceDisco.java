@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
-import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
 import com.easyerp.model.dto.ArquivoResponse;
 
 import net.coobird.thumbnailator.Thumbnails;

@@ -1,6 +1,5 @@
 package com.easyerp;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +13,7 @@ import com.easyerp.domain.repository.ProdutoVariacaoRepository;
 class EasyErpApplicationTests {
 @Autowired
 	ProdutoVariacaoRepository produtoVariacaoRepository;
+
 	void contextLoads() {
 		String[] cores = {"azul", "preto", "vermelho"};
         String[] tamanhos = {"pequeno", "medio", "gigante", "extra grande"};

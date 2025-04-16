@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.easyerp.domain.service.exeption.ArquivoInvalidoException;
-import com.easyerp.domain.service.exeption.ArquivoSizeExeption;
 import com.easyerp.domain.service.exeption.EntidadeEmUsoExeption;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
