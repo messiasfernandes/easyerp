@@ -165,7 +165,7 @@ public class StorageService {
 	           throw new ArquivoInvalidoException("Tipo de arquivo inválido. Apenas JPG e PNG são permitidos.");
 	       }
 	       
-		   long tamanhoMaximo = 1 * 1024 * 1024; // 5MB
+		   long tamanhoMaximo = 5 * 1024 * 1024; // 5MB
 		    if (file.getSize() > tamanhoMaximo) {
 		        throw new ArquivoSizeExeption( " O arquivo excede o tamanho máximo permitido de 5MB.");
 		    }

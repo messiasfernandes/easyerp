@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +25,7 @@ import com.easyerp.domain.service.StorageService2;
 import com.easyerp.model.dto.ArquivoResponse;
 
 import jakarta.activation.FileTypeMap;
-@CrossOrigin
+
 @RestController
 @RequestMapping("v1/arquivos")
 public class ArquivoController implements ArquivosControllerOpenApi {
