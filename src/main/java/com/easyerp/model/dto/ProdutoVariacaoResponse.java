@@ -38,15 +38,16 @@ public record ProdutoVariacaoResponse(Long id, String descricao, String ean13, S
 	}
 
 	public static BigDecimal CalcularPreco(BigDecimal preco_Venda, BigDecimal desconto, BigDecimal qtdePacote) {
+	
 		BigDecimal resultado = BigDecimal.ZERO;
 		if (desconto.signum() != 0) {
 			resultado = resultado.add(preco_Venda.multiply(qtdePacote));
-			System.out.println(resultado + "resulado");
+			System.out.println(resultado + "resulado primero ");
 			resultado = resultado.subtract(resultado.multiply(desconto));
 		} else {
 			resultado = preco_Venda;
 		}
-
+		System.out.println(resultado + "resulado");
 		return resultado;
 		// BigDecimalUtil.format(resultado);
 		// resultado.setScale(2, RoundingMode.HALF_UP);

@@ -104,6 +104,9 @@ public class ProdutoVariacao implements Serializable {
 
 		this.atributos = variacaoCadastroInput.atributos().stream().map(Atributo::new).collect(Collectors.toSet());
 		this.qtdeporPacote = variacaoCadastroInput.qtdeporPacote();
+		this.desconto= variacaoCadastroInput.desconto();
+		this.imagemProduto= variacaoCadastroInput.imagemProduto();
+		this.custoAdicional= variacaoCadastroInput.custoAdicional();
 		this.ativo = variacaoCadastroInput.ativo();
 		this.unidadeMedida.setId(variacaoCadastroInput.unidadeInput().id());
 		this.descricao = TolowerCase.normalizarString(variacaoCadastroInput.descricao());

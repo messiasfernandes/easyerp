@@ -75,6 +75,8 @@ public class Produto extends GeradorId {
 		this.custoMedio = produtoCadastroInput.custoMedio();
 		this.tipoProduto= produtoCadastroInput.tipoProduto();
 		this.marca = criarMarca(produtoCadastroInput.marca());
+		this.estoqueMaximo= produtoCadastroInput.estoqueMaximo();
+		this.estoqueMinimo= produtoCadastroInput.estoqueMinimo();
 		this.estoque = criarEstoque();
 		this.subCategoria = criarSubCategoria(produtoCadastroInput.subCategoria());
 		this.variacoes = produtoCadastroInput.variacoes().stream().map(ProdutoVariacao::new)

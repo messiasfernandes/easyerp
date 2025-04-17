@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 public record ProdutoCadastroInput(Long id, String produto, TipoProduto tipoProduto, BigDecimal custo,
         BigDecimal custoMedio,
         BigDecimal precoVenda,
+       BigDecimal estoqueMinimo,
+       BigDecimal estoqueMaximo,
          MarcaCadastroInput marca,
         SubCategoriaInput subCategoria,
         
