@@ -58,7 +58,7 @@ public class ProdutoVariacao implements Serializable {
 	private String codigoEan13;
 	@Digits(integer = 9, fraction = 4)
 	private BigDecimal custoAdicional = BigDecimal.ZERO;
-	@Setter(value = AccessLevel.NONE)
+	//@Setter(value = AccessLevel.NONE)
 	@Digits(integer = 9, fraction = 4)
 	private BigDecimal desconto = BigDecimal.ZERO;
 	@Digits(integer = 9, fraction = 4)
@@ -104,7 +104,7 @@ public class ProdutoVariacao implements Serializable {
 
 		this.atributos = variacaoCadastroInput.atributos().stream().map(Atributo::new).collect(Collectors.toSet());
 		this.qtdeporPacote = variacaoCadastroInput.qtdeporPacote();
-		this.desconto= variacaoCadastroInput.desconto();
+		this.desconto= calculaDesconto( variacaoCadastroInput.desconto());
 		this.imagemProduto= variacaoCadastroInput.imagemProduto();
 		this.custoAdicional= variacaoCadastroInput.custoAdicional();
 		this.ativo = variacaoCadastroInput.ativo();
@@ -117,10 +117,11 @@ public class ProdutoVariacao implements Serializable {
 
 	}
 
-	public void setDesconto(BigDecimal desconto) {
-		this.desconto = desconto.divide(new BigDecimal(100));
-	}
 
+    private BigDecimal calculaDesconto(BigDecimal pDesconto) {
+    	this.desconto=pDesconto.divide(new BigDecimal(100));
+    	return this.desconto;
+    }
 	
 
 	public Integer calcularEstoque(Integer qtdeEstoque) {
