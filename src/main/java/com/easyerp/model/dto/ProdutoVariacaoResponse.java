@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ProdutoVariacaoResponse(Long id, String descricao, String codigoEan13, String unidade, Integer qtdeEstoque,
-		BigDecimal qtdeporEmbalagem, @FormatBigDecimal BigDecimal precoVenda, String caracterisca,
+		BigDecimal qtdeporPacote , @FormatBigDecimal BigDecimal desconto , String caracterisca,
 		@JsonIgnore Set<AtributoResponse> caracteristicas,
 		@JsonInclude(JsonInclude.Include.NON_EMPTY) Set<ComponenteResponse> componentes) {
 	public ProdutoVariacaoResponse(ProdutoVariacao produtoVariacao) {
