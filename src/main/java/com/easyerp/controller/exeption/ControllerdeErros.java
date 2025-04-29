@@ -125,13 +125,13 @@ public class ControllerdeErros  {
 	    }
 
 	    @ExceptionHandler({FileNotFoundException.class})
-	    public ResponseEntity<Problema> handleFileNotFound(FileNotFoundException ex) {
+	    public ResponseEntity<Object> handleFileNotFound(FileNotFoundException ex) {
 	        Problema problema = criarProblema(HttpStatus.NOT_FOUND, ex.getMessage());
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problema);
 	    }
 
 	    @ExceptionHandler({StorageException.class})
-	    public ResponseEntity<Problema> handleStorage(StorageException ex) {
+	    public ResponseEntity<Object> handleStorage(StorageException ex) {
 	        Problema problema = criarProblema(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problema);
 	    }
@@ -145,7 +145,7 @@ public class ControllerdeErros  {
 
 	   
    @ExceptionHandler(ArquivoSizeExeption.class)
-    public ResponseEntity<Problema> handleMaxSizeException(ArquivoSizeExeption ex,WebRequest request) {
+    public ResponseEntity<Object> handleMaxSizeException(ArquivoSizeExeption ex,WebRequest request) {
 	   var status = HttpStatus.PAYLOAD_TOO_LARGE;
        Problema problema = Problema.builder()
            .status(status.value())
