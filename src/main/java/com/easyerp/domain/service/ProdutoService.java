@@ -15,6 +15,7 @@ import com.easyerp.domain.service.exeption.RegistroNaoEncontrado;
 import com.easyerp.model.dto.ProdutoResponse;
 import com.easyerp.model.input.ProdutoCadastroInput;
 import com.easyerp.model.input.ProdutoEditarInput;
+import com.easyerp.utils.ValidarProduto;
 
 import jakarta.transaction.Transactional;
 
@@ -47,7 +48,18 @@ public class ProdutoService {
 	@Transactional(dontRollbackOn = { Exception.class })
 	public ProdutoResponse atualizar(ProdutoEditarInput produtoEditarInput) {
 		Produto produtoExistente = produtoRepository.getReferenceById(produtoEditarInput.id());
-		return produtoMapper.converter(produtoExistente, ProdutoResponse::new);
+	       ValidarProduto validarProduto = new ValidarProduto();
+	        validarProduto.validar(produtoExistente, produtoEditarInput);
+
+
+	        produtoExistente.setCusto(produtoEditarInput.custo() != null ? produtoEditarInput.custo() : null);
+	        produtoExistente.setCustoMedio(produtoEditarInput.custoMedio() != null ? produtoEditarInput.custoMedio() : null);
+	        produtoExistente.setPrecoVenda(produtoEditarInput.precoVenda() != null ? produtoEditarInput.precoVenda() : null);
+
+	      
+	        var produtosalvo = produtoRepository.save(produtoExistente);
+		
+		return produtoMapper.converter(produtosalvo, ProdutoResponse::new);
 	}
 
 	public void excluir(Long id) {
@@ -62,7 +74,7 @@ public class ProdutoService {
 
 	}
 
- 
+  
 
 	public ProdutoResponse buscarPorId(Long id) {
 

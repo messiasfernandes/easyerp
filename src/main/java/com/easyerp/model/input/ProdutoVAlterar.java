@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 
 public record ProdutoVAlterar(Long id,
                               @Size(min = 13, message = "Codigo tem que 13 dígitos")
-                              @EAN                @Transient
-                              String codigoEan13, String caracterisca, Integer qtdeporPacote, String sku, BigDecimal qtdeEstoque) {
+                              @EAN                
+                              String codigoEan13,  Integer qtdeporPacote,UnidadeMedidaInput unidade,   String sku, BigDecimal qtdeEstoque) {
 
 }

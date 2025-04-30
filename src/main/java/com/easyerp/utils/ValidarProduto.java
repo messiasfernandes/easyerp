@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import com.easyerp.domain.entidade.Categoria;
 import com.easyerp.domain.entidade.Marca;
 import com.easyerp.domain.entidade.Produto;
+import com.easyerp.domain.entidade.SubCategoria;
 import com.easyerp.domain.enumerados.TipoProduto;
 import com.easyerp.domain.service.exeption.NegocioException;
 import com.easyerp.model.input.ProdutoEditarInput;
@@ -25,10 +26,10 @@ public class ValidarProduto {
             marca.setId(produtoEditarInput.marca().id());
             produtoExistente.setMarca(marca);
         }
-        if(produtoEditarInput.categoria()!=null){
-            var categoria = new Categoria();
-            categoria.setId(produtoEditarInput.categoria().id());
-           // produtoExistente.setCategoria(categoria);
+        if(produtoEditarInput.subcategoria()!=null){
+            var subCategoria = new SubCategoria();
+            subCategoria.setId(produtoEditarInput.subcategoria().id());
+          produtoExistente.setSubCategoria(subCategoria);
         }
         if (produtoEditarInput.tipoProduto() != null) {
             produtoExistente.setTipoProduto(produtoEditarInput.tipoProduto());

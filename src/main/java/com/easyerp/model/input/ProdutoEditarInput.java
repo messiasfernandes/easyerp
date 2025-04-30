@@ -9,5 +9,5 @@ import jakarta.validation.Valid;
 
 public record ProdutoEditarInput(Long id, String produto, String descricao,  BigDecimal custo,
 		BigDecimal custoMedio, BigDecimal precoVenda, TipoProduto tipoProduto,
-		MarcaInput marca, SubCategoriarInput categoria,  @Valid Set<ProdutoVAlterar> variacoes ) {
+		MarcaInput marca, SubCategoriaInput subcategoria,  @Valid Set<ProdutoVAlterar> variacoes ) {
 }

@@ -126,7 +126,7 @@ public class ProdutoVariacao implements Serializable {
 
 	public Integer calcularEstoque(Integer qtdeEstoque) {
 		
-		  System.out.println("Estoque " + produto.getEstoque().getQuantidade());
+		
 		if(this.qtdeporPacote.signum()==1) {
 			BigDecimal quantidade = new BigDecimal(produto.getEstoque().getQuantidade().toString());
 			BigDecimal multiploBD = qtdeporPacote;
@@ -134,11 +134,11 @@ public class ProdutoVariacao implements Serializable {
 			this.qtdeEstoque = quantidade.divide(multiploBD, RoundingMode.FLOOR).intValue();
 			  System.out.println("passou aqui VALOR UNITARIO" + this.qtdeEstoque);
 		}else {
-	  System.out.println("passou aqui ");
+	
 			this.qtdeEstoque =( (this.qtdeEstoque +qtdeEstoque)* qtdeporPacote.intValue()) /this.qtdeporPacote.intValue();
 		}
 		if (  this.produto.getEstoque().getQuantidade().intValue() < qtdeporPacote.intValue()) {
-			  System.out.println("passou aqui uuuu ");
+			
 			this.qtdeEstoque = 0;
 		}
 
